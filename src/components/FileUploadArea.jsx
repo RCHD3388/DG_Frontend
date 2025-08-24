@@ -1,147 +1,140 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { MdCloudUpload } from 'react-icons/md'; // --- PERBAIKAN DI SINI ---
+import { MdCloudUpload } from 'react-icons/md';
+import { useOutletContext } from 'react-router-dom'; // Import useOutletContext
 
-// Jika belum install react-icons:
-// npm install react-icons
+function FileUploadArea({ onUploadSuccess }) {
+  const { showToast } = useOutletContext(); // Dapatkan showToast dari context
 
-function FileUploadArea() {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef(null); // Ref untuk input file yang tersembunyi
+  const fileInputRef = useRef(null);
 
-  // Fungsi untuk menangani penambahan file
-  const handleFiles = useCallback((files) => {
+  const handleAddFiles = useCallback((files) => {
     const newFiles = Array.from(files);
-    // Anda bisa menambahkan validasi di sini (misal: tipe file, ukuran)
-    setSelectedFiles(prevFiles => [...prevFiles, ...newFiles]);
-  }, []);
+    const uniqueNewFiles = newFiles.filter(newFile => 
+      !selectedFiles.some(existingFile => existingFile.name === newFile.name)
+    );
+    setSelectedFiles(prevFiles => [...prevFiles, ...uniqueNewFiles]);
+  }, [selectedFiles]);
 
-  // Event handler untuk perubahan input file (klik 'browse')
   const handleFileChange = (event) => {
     if (event.target.files) {
-      handleFiles(event.target.files);
-      event.target.value = null; // Reset input agar event change bisa terpicu lagi jika file yang sama dipilih
+      handleAddFiles(event.target.files);
+      event.target.value = null; 
     }
   };
 
-  // Event handler untuk click pada area drag & drop
-  const handleAreaClick = () => {
-    fileInputRef.current.click(); // Memicu klik pada input file tersembunyi
-  };
-
-  // Event handler untuk drag over (untuk mengubah kursor dan indikator visual)
-  const handleDragOver = (event) => {
-    event.preventDefault(); // Penting: Mencegah perilaku default browser (membuka file)
-    setIsDragging(true);
-  };
-
-  // Event handler untuk drag leave (ketika kursor meninggalkan area)
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  // Event handler untuk drop file
+  const handleAreaClick = () => fileInputRef.current.click();
+  const handleDragOver = (event) => { event.preventDefault(); setIsDragging(true); };
+  const handleDragLeave = () => setIsDragging(false);
   const handleDrop = (event) => {
-    event.preventDefault(); // Penting: Mencegah perilaku default browser
+    event.preventDefault();
     setIsDragging(false);
     if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
-      handleFiles(event.dataTransfer.files);
-      event.dataTransfer.clearData(); // Membersihkan data transfer
+      handleAddFiles(event.dataTransfer.files);
+      event.dataTransfer.clearData();
     }
   };
 
-  // Fungsi untuk menghapus file dari daftar
-  const removeFile = (indexToRemove) => {
-    setSelectedFiles(prevFiles => prevFiles.filter((_, index) => index !== indexToRemove));
+  const handleRemoveSelectedFile = (fileNameToRemove) => {
+    setSelectedFiles(prevFiles => prevFiles.filter(file => file.name !== fileNameToRemove));
   };
 
-  // Fungsi untuk simulasi submit
-  const handleSubmit = async () => { // Tambahkan async di sini
+
+  const handleSubmit = async () => {
     if (selectedFiles.length === 0) {
-      alert("Please select files first!");
+      showToast("Please select files first!", 'info'); // Ganti alert dengan toast
       return;
     }
 
     const formData = new FormData();
     selectedFiles.forEach(file => {
-      formData.append('files', file); // Pastikan 'files' sesuai dengan backend
+      formData.append('files', file);
     });
 
     try {
-      const response = await fetch('http://localhost:8000/api/upload_files/', { // SESUAIKAN URL API ANDA
-        method: 'POST',
-        body: formData,
-        // Header Content-Type tidak perlu disetel, browser akan otomatis mengaturnya untuk FormData
-      });
+        const response = await fetch('http://localhost:8000/api/files/upload', {
+            method: 'POST',
+            body: formData,
+        });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || errorData.message || 'File upload failed');
-      }
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || errorData.message || 'File upload failed');
+        }
 
-      const data = await response.json();
-      console.log('Upload successful:', data);
-      alert(`Files uploaded successfully! Server Response: ${data.message}`);
-      setSelectedFiles([]); // Bersihkan daftar file setelah upload berhasil
+        const data = await response.json();
+        console.log('Upload successful:', data);
+        showToast(`Files uploaded successfully!`, 'success'); // Toast sukses
+        setSelectedFiles([]); 
+        
+        if (onUploadSuccess) {
+            onUploadSuccess(data.uploaded_files); // Backend sekarang mengembalikan 'uploaded_files'
+        }
+
     } catch (error) {
-      console.error('Upload error:', error);
-      alert(`Failed to upload files: ${error.message}`);
+        console.error('Upload error:', error);
+        showToast(`Failed to upload files: ${error.message}`, 'error'); // Toast error
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-base-200 p-4">
-      <div
-        className={`
-          w-full max-w-lg p-8 mb-6
-          border-4 border-dashed rounded-2xl
-          flex flex-col items-center justify-center text-center
-          transition-colors duration-300 ease-in-out
-          ${isDragging ? 'border-primary-focus bg-primary-content text-primary' : 'border-base-content/50 bg-base-100 text-base-content'}
-          cursor-pointer
-        `}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        onClick={handleAreaClick}
-      >
-        <MdCloudUpload className={`text-6xl mb-4 ${isDragging ? 'text-primary' : 'text-base-content/70'}`} /> {/* --- PERBAIKAN DI SINI --- */}
-        <p className="text-lg font-semibold mb-2">
-          {isDragging ? "Drop your files here!" : "Drag & drop files here"}
-        </p>
-        <p className="text-sm text-base-content/80">
-          or <span className="text-primary font-medium">click to browse</span>
-        </p>
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          multiple // Izinkan multi-file selection
-          className="hidden" // Sembunyikan input file secara visual
-        />
-      </div>
-
-      {selectedFiles.length > 0 && (
-        <div className="w-full max-w-lg mb-6 p-4 bg-base-100 rounded-lg shadow-md">
-          <h4 className="text-lg font-semibold mb-3 text-base-content">Selected Files:</h4>
-          <ul className="list-disc list-inside space-y-2">
-            {selectedFiles.map((file, index) => (
-              <li key={index} className="flex items-center justify-between text-base-content">
-                <span>{file.name} ({Math.round(file.size / 1024)} KB)</span>
-                <button
-                  onClick={(e) => { e.stopPropagation(); removeFile(index); }} // Stop propagation untuk mencegah trigger handleAreaClick
-                  className="btn btn-xs btn-outline btn-error ml-2"
-                >
-                  Remove
-                </button>
-              </li>
-            ))}
-          </ul>
+    <div className="w-full h-full flex flex-col items-center justify-between p-6 bg-base-100 rounded-lg shadow-xl">
+      <div>
+        <div
+            className={`
+            w-full p-10 mb-4
+            border-4 border-dashed rounded-2xl
+            flex flex-col items-center justify-center text-center
+            transition-colors duration-300 ease-in-out
+            ${isDragging ? 'border-primary-focus bg-primary-content text-primary' : 'border-base-content/50 bg-base-200 text-base-content'}
+            cursor-pointer
+            shadow-md hover:shadow-lg
+            min-h-[200px]
+            `}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onClick={handleAreaClick}
+        >
+            <MdCloudUpload className={`text-7xl mb-4 ${isDragging ? 'text-primary' : 'text-base-content/70'}`} />
+            <p className="text-xl font-bold mb-2">
+            {isDragging ? "Drop your files here!" : "Drag & drop files here"}
+            </p>
+            <p className="text-md text-base-content/80">
+            or <span className="text-primary font-medium">click to browse</span>
+            </p>
+            <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            multiple
+            className="hidden"
+            />
         </div>
-      )}
+      </div>
+      
+        {selectedFiles.length > 0 && (
+            <div className="w-full mt-4 p-4 bg-base-200 rounded-lg shadow-inner">
+                <h5 className="text-lg font-semibold text-base-content mb-3">Files to Upload:</h5>
+                <ul className="list-disc list-inside space-y-2 text-base-content text-sm">
+                    {selectedFiles.map((file) => (
+                        <li key={file.name} className="flex items-center justify-between">
+                            <span className="break-all">{file.name} (<span className="text-xs">{Math.round(file.size / 1024)} KB</span>)</span>
+                            <button
+                                onClick={(e) => { e.stopPropagation(); handleRemoveSelectedFile(file.name); }}
+                                className="btn btn-xs btn-outline btn-error ml-2"
+                            >
+                                Remove
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        )}
 
       <button
-        className="btn btn-primary btn-lg min-w-[200px]"
+        className="btn btn-primary btn-lg w-full mt-6"
         onClick={handleSubmit}
         disabled={selectedFiles.length === 0}
       >

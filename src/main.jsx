@@ -1,10 +1,45 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import {
+  createBrowserRouter,
+  RouterProvider,
+} from 'react-router-dom';
+import App from './App.jsx';
+import './index.css';
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+// Import halaman-halaman Anda
+import UploadPage from './pages/UploadPage.jsx';
+import AnalyzePage from './pages/AnalyzePage.jsx';
+
+// Konfigurasi router
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <App />, // App sebagai layout root
+    children: [
+      {
+        index: true, // Ini adalah route default untuk path "/"
+        element: <UploadPage />,
+      },
+      {
+        path: "upload",
+        element: <UploadPage />,
+      },
+      {
+        path: "analyze",
+        element: <AnalyzePage />,
+      },
+      // Anda bisa menambahkan route lain di sini, misalnya 404 page
+      // {
+      //   path: "*",
+      //   element: <div>404 Not Found</div>,
+      // },
+    ],
+  },
+]);
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <RouterProvider router={router} />
+  </React.StrictMode>,
+);
