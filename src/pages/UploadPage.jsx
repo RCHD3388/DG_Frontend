@@ -4,6 +4,9 @@ import FileUploadArea from '../components/FileUploadArea';
 import UploadedFileList from '../components/UploadedFileList';
 import ModalConfirm from '../components/ModalConfirm';
 
+// Definisikan base URL backend dari variabel lingkungan
+const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
+
 function UploadPage() {
   const { showToast } = useOutletContext();
 
@@ -18,8 +21,8 @@ function UploadPage() {
     setIsLoadingFiles(true);
     setErrorLoadingFiles(null);
     try {
-      const response = await fetch('http://localhost:8000/api/files/'); 
-      
+      const response = await fetch(`${BACKEND_BASE_URL}/api/files/`); // Gunakan BACKEND_BASE_URL
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -28,7 +31,7 @@ function UploadPage() {
     } catch (error) {
       console.error("Error fetching historic files:", error);
       setErrorLoadingFiles(error.message);
-      showToast('Failed to load uploaded files.', 'error'); 
+      showToast('Failed to load uploaded files.', 'error');
     } finally {
       setIsLoadingFiles(false);
     }
@@ -53,24 +56,23 @@ function UploadPage() {
     if (!fileToDelete) return;
 
     try {
-        const response = await fetch(`http://localhost:8000/api/files/${fileToDelete}`, { 
-            method: 'DELETE',
-        });
+      const response = await fetch(`${BACKEND_BASE_URL}/api/files/${fileToDelete}`, { // Gunakan BACKEND_BASE_URL
+        method: 'DELETE',
+      });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.detail || errorData.message || 'Failed to delete file');
-        }
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || errorData.message || 'Failed to delete file');
+      }
 
-        console.log(`File ${fileToDelete} deleted successfully.`);
-        // --- PERUBAHAN DI SINI: Ubah tipe toast menjadi 'error' untuk sukses delete ---
-        showToast(`File "${fileToDelete}" deleted successfully.`, 'error'); 
-        fetchHistoricFiles();
+      console.log(`File ${fileToDelete} deleted successfully.`);
+      showToast(`File "${fileToDelete}" deleted successfully.`, 'error');
+      fetchHistoricFiles();
     } catch (error) {
-        console.error('Error deleting file:', error);
-        showToast(`Failed to delete file "${fileToDelete}": ${error.message}`, 'error');
+      console.error('Error deleting file:', error);
+      showToast(`Failed to delete file "${fileToDelete}": ${error.message}`, 'error');
     } finally {
-        setFileToDelete(null);
+      setFileToDelete(null);
     }
   };
 
@@ -80,34 +82,37 @@ function UploadPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-start py-8 min-h-[calc(100vh-160px)]">
+    <div className="flex flex-col items-center justify-start py-8 min-h-[calc(100vh-160px)] w-full">
       <h1 className="text-4xl md:text-5xl font-extrabold text-base-content mb-10 text-center">
         🚀 Manage Your Files
       </h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-8xl mx-auto px-4">
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full mx-auto px-4">
         <div className="md:order-1 flex flex-col">
           <h2 className="text-2xl font-bold text-base-content mb-4">Upload New Files</h2>
           <FileUploadArea onUploadSuccess={handleUploadSuccess} />
         </div>
 
-        <div className="md:order-2 flex flex-col">
+        <div className="md:order-2 flex flex-col ">
           <h2 className="text-2xl font-bold text-base-content mb-4">Uploaded Files History</h2>
-          {isLoadingFiles ? (
-            <div className="flex justify-center items-center h-full p-8 bg-base-100 rounded-lg shadow-xl">
-              <span className="loading loading-spinner loading-lg text-primary"></span>
-              <p className="ml-4 text-base-content">Loading files...</p>
-            </div>
-          ) : errorLoadingFiles ? (
-            <div className="flex justify-center items-center h-full p-8 bg-error text-error-content rounded-lg shadow-xl">
+          <div className='bg-base-100 w-full max-h-96 min-h-96 overflow-y-auto'>
+          {/* <div className="w-full max-h-96 overflow-y-auto"> */}
+            {isLoadingFiles ? (
+              <div className="flex justify-center items-center h-full p-8 bg-base-100 rounded-lg shadow-xl">
+                <span className="loading loading-spinner loading-lg text-primary"></span>
+                <p className="ml-4 text-base-content">Loading files...</p>
+              </div>
+            ) : errorLoadingFiles ? (
+              <div className="flex justify-center items-center h-full p-8 bg-error text-error-content rounded-lg shadow-xl">
                 <p className="font-semibold">Error: {errorLoadingFiles}</p>
-            </div>
-          ) : (
-            <UploadedFileList
-              files={historicFiles}
-              onRemoveFile={handleConfirmRemove}
-            />
-          )}
+              </div>
+            ) : (
+              <UploadedFileList
+                files={historicFiles}
+                onRemoveFile={handleConfirmRemove}
+              />
+            )}
+          </div>
         </div>
       </div>
 
@@ -118,7 +123,7 @@ function UploadPage() {
         title="Confirm Deletion"
         message={`Are you sure you want to delete file "${fileToDelete}"? This action cannot be undone.`}
       />
-    </div>
+    </div >
   );
 }
 

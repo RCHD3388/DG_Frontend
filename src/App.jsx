@@ -18,7 +18,7 @@ function App() {
   return (
     <div data-theme="light" className="min-h-screen flex flex-col bg-base-200">
       <Navbar />
-      <main className="flex-grow container mx-auto p-4 md:p-8">
+      <main className="flex-grow p-4 md:p-8">
         {/* Render Outlet dengan prop showToast */}
         <Outlet context={{ showToast }} /> 
       </main>

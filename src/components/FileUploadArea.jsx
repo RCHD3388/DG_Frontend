@@ -1,9 +1,11 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { MdCloudUpload } from 'react-icons/md';
-import { useOutletContext } from 'react-router-dom'; // Import useOutletContext
+import { useOutletContext } from 'react-router-dom';
+
+const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 function FileUploadArea({ onUploadSuccess }) {
-  const { showToast } = useOutletContext(); // Dapatkan showToast dari context
+  const { showToast } = useOutletContext();
 
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -11,11 +13,32 @@ function FileUploadArea({ onUploadSuccess }) {
 
   const handleAddFiles = useCallback((files) => {
     const newFiles = Array.from(files);
-    const uniqueNewFiles = newFiles.filter(newFile => 
-      !selectedFiles.some(existingFile => existingFile.name === newFile.name)
-    );
-    setSelectedFiles(prevFiles => [...prevFiles, ...uniqueNewFiles]);
-  }, [selectedFiles]);
+    const validFiles = [];
+    const invalidFiles = [];
+
+    newFiles.forEach(file => {
+      // Validasi format file: hanya .zip yang diterima
+      if (file.name.toLowerCase().endsWith('.zip')) {
+        // Cek duplikasi sebelum menambahkan
+        if (!selectedFiles.some(existingFile => existingFile.name === file.name)) {
+          validFiles.push(file);
+        } else {
+          showToast(`File "${file.name}" is already in the list.`, 'info');
+        }
+      } else {
+        invalidFiles.push(file.name);
+      }
+    });
+
+    if (invalidFiles.length > 0) {
+      const message = `The following files are not .zip format and cannot be uploaded: ${invalidFiles.join(', ')}`;
+      showToast(message, 'error'); // Berikan toast error untuk file yang salah
+    }
+
+    if (validFiles.length > 0) {
+      setSelectedFiles(prevFiles => [...prevFiles, ...validFiles]);
+    }
+  }, [selectedFiles, showToast]); // Tambahkan showToast ke dependencies useCallback
 
   const handleFileChange = (event) => {
     if (event.target.files) {
@@ -43,7 +66,7 @@ function FileUploadArea({ onUploadSuccess }) {
 
   const handleSubmit = async () => {
     if (selectedFiles.length === 0) {
-      showToast("Please select files first!", 'info'); // Ganti alert dengan toast
+      showToast("Please select .zip files to upload first!", 'info'); // Ubah pesan
       return;
     }
 
@@ -53,7 +76,7 @@ function FileUploadArea({ onUploadSuccess }) {
     });
 
     try {
-        const response = await fetch('http://localhost:8000/api/files/upload', {
+        const response = await fetch(`${BACKEND_BASE_URL}/api/files/upload`, {
             method: 'POST',
             body: formData,
         });
@@ -65,16 +88,16 @@ function FileUploadArea({ onUploadSuccess }) {
 
         const data = await response.json();
         console.log('Upload successful:', data);
-        showToast(`Files uploaded successfully!`, 'success'); // Toast sukses
+        showToast(`Files uploaded successfully!`, 'success');
         setSelectedFiles([]); 
         
         if (onUploadSuccess) {
-            onUploadSuccess(data.uploaded_files); // Backend sekarang mengembalikan 'uploaded_files'
+            onUploadSuccess(data.uploaded_files);
         }
 
     } catch (error) {
         console.error('Upload error:', error);
-        showToast(`Failed to upload files: ${error.message}`, 'error'); // Toast error
+        showToast(`Failed to upload files: ${error.message}`, 'error');
     }
   };
 
@@ -99,7 +122,7 @@ function FileUploadArea({ onUploadSuccess }) {
         >
             <MdCloudUpload className={`text-7xl mb-4 ${isDragging ? 'text-primary' : 'text-base-content/70'}`} />
             <p className="text-xl font-bold mb-2">
-            {isDragging ? "Drop your files here!" : "Drag & drop files here"}
+            {isDragging ? "Drop your .zip files here!" : "Drag & drop .zip files here"} {/* Ubah teks */}
             </p>
             <p className="text-md text-base-content/80">
             or <span className="text-primary font-medium">click to browse</span>
@@ -110,6 +133,8 @@ function FileUploadArea({ onUploadSuccess }) {
             onChange={handleFileChange}
             multiple
             className="hidden"
+            // Tambahkan accept=".zip" untuk dialog file browser
+            accept=".zip"
             />
         </div>
       </div>
