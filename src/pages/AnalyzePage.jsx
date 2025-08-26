@@ -154,38 +154,6 @@ function AnalyzePage() {
 
           {analysisResult && (
             <div className="flex-grow flex flex-col">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2 text-center">
-                <div className="stat place-items-center bg-base-200 rounded-lg p-3 shadow-sm">
-                  <div className="stat-title text-base-content/70 text-xs">Total Classes</div>
-                  <div className="stat-value text-primary text-2xl">{analysisResult.total_classes || 0}</div>
-                </div>
-                <div className="stat place-items-center bg-base-200 rounded-lg p-3 shadow-sm">
-                  <div className="stat-title text-base-content/70 text-xs">Total Functions</div>
-                  <div className="stat-value text-secondary text-2xl">{analysisResult.total_functions || 0}</div>
-                </div>
-                <div className="stat place-items-center bg-base-200 rounded-lg p-2 shadow-sm">
-                  <div className="stat-title text-base-content/70 text-xs">Total Methods</div>
-                  <div className="stat-value text-accent text-2xl">{analysisResult.total_methods || 0}</div>
-                </div>
-                <div className="stat place-items-center bg-base-200 rounded-lg p-2 shadow-sm">
-                  <div className="stat-title text-base-content/70 text-xs">Total Components</div>
-                  <div className="stat-value text-black text-2xl">{calculateTotalComponents(analysisResult)}</div>
-                </div>
-              </div>
-
-              {/* Download Links */}
-              <div className="flex flex-col md:flex-row justify-center items-center w-full mb-2">
-                {analysisResult.graph_json_download_url && (
-                  <a
-                    href={`${BACKEND_BASE_URL}${analysisResult.graph_json_download_url}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-outline btn-info btn-sm flex-grow"
-                  >
-                    Download Dependency Graph (JSON)
-                  </a>
-                )}
-              </div>
               {/* <div className="flex flex-col md:flex-row justify-center items-center w-full">
                 {analysisResult && (
                   <a
@@ -200,7 +168,7 @@ function AnalyzePage() {
               </div> */}
 
               {/* AREA PREVIEW DOKUMEN DENGAN DOCXVIEWER */}
-              <div className="mt-8 flex-grow">
+              <div className="mt-2 flex-grow">
                 {analysisResult.doc_download_url ? (
                   // Meneruskan prop height ke DocxViewer
                   <DocxViewer docxUrl={`${BACKEND_BASE_URL}${analysisResult.doc_download_url}`} height="800px" />
