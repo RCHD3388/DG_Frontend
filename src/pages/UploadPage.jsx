@@ -3,9 +3,7 @@ import { useOutletContext } from 'react-router-dom';
 import FileUploadArea from '../components/FileUploadArea';
 import UploadedFileList from '../components/UploadedFileList';
 import ModalConfirm from '../components/ModalConfirm';
-
-// Definisikan base URL backend dari variabel lingkungan
-const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
+import { apiService } from '../services/APIService';
 
 function UploadPage() {
   const { showToast } = useOutletContext();
@@ -21,13 +19,9 @@ function UploadPage() {
     setIsLoadingFiles(true);
     setErrorLoadingFiles(null);
     try {
-      const response = await fetch(`${BACKEND_BASE_URL}/api/files/`); // Gunakan BACKEND_BASE_URL
+      const response = await apiService.get('/files/');
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      setHistoricFiles(data.files || []);
+      setHistoricFiles(response.files || []);
     } catch (error) {
       console.error("Error fetching historic files:", error);
       setErrorLoadingFiles(error.message);
@@ -56,14 +50,7 @@ function UploadPage() {
     if (!fileToDelete) return;
 
     try {
-      const response = await fetch(`${BACKEND_BASE_URL}/api/files/${fileToDelete}`, { // Gunakan BACKEND_BASE_URL
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || errorData.message || 'Failed to delete file');
-      }
+      const response = await apiService.delete(`/files/${fileToDelete}`);
 
       console.log(`File ${fileToDelete} deleted successfully.`);
       showToast(`File "${fileToDelete}" deleted successfully.`, 'error');

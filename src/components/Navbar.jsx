@@ -31,6 +31,16 @@ function Navbar() {
               Analyze Data
             </NavLink>
           </li>
+          <li>
+            <NavLink
+              to="/manager"
+              className={({ isActive }) =>
+                isActive ? "btn btn-sm btn-warning" : "btn btn-sm btn-ghost"
+              }
+            >
+              Redis
+            </NavLink>
+          </li>
         </ul>
       </div>
     </div>

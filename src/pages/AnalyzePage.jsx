@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import UploadedFileList from '../components/UploadedFileList';
 import DocxViewer from '../components/DocxViewer'; // Pastikan ini diimpor
+import { apiService } from '../services/APIService';
 
-const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 function AnalyzePage() {
   const { showToast } = useOutletContext();
@@ -20,13 +20,9 @@ function AnalyzePage() {
     setIsLoadingFiles(true);
     setErrorLoadingFiles(null);
     try {
-      const response = await fetch(`${BACKEND_BASE_URL}/api/files/`);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      setHistoricFiles(data.files || []);
+      const response = await apiService.get('/files/'); 
+      
+      setHistoricFiles(response.files || []);
     } catch (error) {
       console.error("Error fetching historic files:", error);
       setErrorLoadingFiles(error.message);
@@ -55,19 +51,10 @@ function AnalyzePage() {
     setAnalysisResult(null);
 
     try {
-      const response = await fetch(`${BACKEND_BASE_URL}/api/analyze/${selectedFileId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
+      const response = await apiService.post(`/analyze/${selectedFileId}`);
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || errorData.message || 'Analysis failed');
-      }
-
-      const data = await response.json();
-      console.log('Analysis successful:', data);
-      setAnalysisResult(data);
+      console.log('Analysis successful:', response);
+      setAnalysisResult(response);
       showToast('Repository analysis complete!', 'success');
 
     } catch (error) {

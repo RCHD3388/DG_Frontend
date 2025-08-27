@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { MdCloudUpload } from 'react-icons/md';
 import { useOutletContext } from 'react-router-dom';
+import { apiService } from '../services/APIService';
 
 const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
@@ -76,23 +77,14 @@ function FileUploadArea({ onUploadSuccess }) {
     });
 
     try {
-        const response = await fetch(`${BACKEND_BASE_URL}/api/files/upload`, {
-            method: 'POST',
-            body: formData,
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.detail || errorData.message || 'File upload failed');
-        }
-
-        const data = await response.json();
-        console.log('Upload successful:', data);
+        const response = await apiService.post('/files/upload', formData);
+        
+        console.log('Upload successful:', response);
         showToast(`Files uploaded successfully!`, 'success');
         setSelectedFiles([]); 
         
         if (onUploadSuccess) {
-            onUploadSuccess(data.uploaded_files);
+            onUploadSuccess(response.uploaded_files);
         }
 
     } catch (error) {

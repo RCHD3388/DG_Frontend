@@ -10,6 +10,7 @@ import './index.css';
 // Import halaman-halaman Anda
 import UploadPage from './pages/UploadPage.jsx';
 import AnalyzePage from './pages/AnalyzePage.jsx';
+import ManagerPage from './pages/ManagerPage.jsx';
 
 // Konfigurasi router
 const router = createBrowserRouter([
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
       {
         path: "analyze",
         element: <AnalyzePage />,
+      },
+      {
+        path: "manager",
+        element: <ManagerPage />,
       },
       // Anda bisa menambahkan route lain di sini, misalnya 404 page
       // {
