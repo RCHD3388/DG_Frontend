@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import {
   createBrowserRouter,
+  Navigate,
   RouterProvider,
 } from 'react-router-dom';
 import App from './App.jsx';
@@ -20,7 +21,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true, // Ini adalah route default untuk path "/"
-        element: <UploadPage />,
+        element: <Navigate to="/upload" />,
       },
       {
         path: "upload",

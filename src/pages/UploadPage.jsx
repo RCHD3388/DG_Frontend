@@ -20,8 +20,8 @@ function UploadPage() {
     setErrorLoadingFiles(null);
     try {
       const response = await apiService.get('/files/');
-
-      setHistoricFiles(response.files || []);
+      console.log('Fetched files:', response);
+      setHistoricFiles(response.data.files || []);
     } catch (error) {
       console.error("Error fetching historic files:", error);
       setErrorLoadingFiles(error.message);
