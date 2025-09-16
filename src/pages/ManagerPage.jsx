@@ -33,22 +33,22 @@ function ManagerPage() {
 
     switch (type) {
       case DELETE_TYPES.REDIS:
-        endpoint = '/data_manager/clear-redis-tasks'; // Endpoint yang sudah ada
+        endpoint = '/red_tasks/'; // Endpoint yang sudah ada
         successMessage = 'Redis task data cleared successfully!';
         errorMessage = 'Failed to clear Redis data.';
         break;
       case DELETE_TYPES.DEPENDENCY_GRAPHS:
-        endpoint = '/data_manager/clear-dependency-graphs';
+        endpoint = '/files/dependency_graphs';
         successMessage = 'Dependency graph JSONs cleared successfully!';
         errorMessage = 'Failed to clear dependency graph JSONs.';
         break;
       case DELETE_TYPES.PYCG_OUTPUTS:
-        endpoint = '/data_manager/clear-pycg-outputs';
+        endpoint = '/files/pycg_outputs';
         successMessage = 'PyCG output JSONs cleared successfully!';
         errorMessage = 'Failed to clear PyCG output JSONs.';
         break;
       case DELETE_TYPES.EXTRACTED_PROJECTS:
-        endpoint = '/data_manager/clear-extracted-projects';
+        endpoint = '/files/extracted_projects';
         successMessage = 'Extracted project folders cleared successfully!';
         errorMessage = 'Failed to clear extracted project folders.';
         break;
@@ -63,6 +63,7 @@ function ManagerPage() {
     }
 
     try {
+      print(endpoint)
       const response = await apiService.delete(endpoint);
       showToast(successMessage, 'success');
       console.log(`${type} deletion success:`, response.data);
@@ -253,7 +254,6 @@ function ManagerPage() {
           className="lg:w-3/4 bg-base-100 rounded-lg shadow-xl p-6 flex-grow"
           style={{ overflowY: 'auto' }}
         >
-          {renderContent()}
           {renderContent()}
         </div>
       </div>
