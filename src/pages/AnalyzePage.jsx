@@ -5,7 +5,7 @@ import DocxViewer from '../components/DocxViewer'; // Pastikan ini diimpor
 import { apiService } from '../services/APIService';
 import { configService } from '../services/ConfigService';
 import ExtractionSummary from '../components/analyze_components/ExtractionSummary';
-
+import DependencyGraphViewer from '../components/analyze_components/DependencyGraphViewer';
 
 function AnalyzePage() {
   const { showToast } = useOutletContext();
@@ -142,9 +142,9 @@ function AnalyzePage() {
           <button
             className="btn btn-primary btn-lg mt-6 w-full"
             onClick={handleAnalyzeRepository}
-            disabled={!selectedFileId || isAnalyzing ||  (latestUpdate && latestUpdate?.status != "completed")}
+            disabled={!selectedFileId || isAnalyzing || (latestUpdate && latestUpdate?.status != "completed")}
           >
-            {(isAnalyzing || (latestUpdate && latestUpdate?.status != "completed"))? (
+            {(isAnalyzing || (latestUpdate && latestUpdate?.status != "completed")) ? (
               <>
                 <span className="loading loading-spinner loading-md"></span>
                 Analyzing...
@@ -182,16 +182,25 @@ function AnalyzePage() {
             <div className="flex-grow flex flex-col">
               {/* name of each tab group should be unique */}
               <div className="tabs tabs-lift">
-                <input type="radio" name="my_tabs_3" className="tab" aria-label="Extracted File" />
+                <input type="radio" name="my_tabs_3" className="tab" aria-label="Extracted File" defaultChecked />
                 <div className="tab-content bg-base-100 border-base-300 p-2">
-                  <ExtractionSummary 
+                  <ExtractionSummary
                     discovered_files={latestUpdate?.discovered_files || []}
                     extracted_folder_name={latestUpdate?.source_file || "N/A"}
                   />
                 </div>
 
-                <input type="radio" name="my_tabs_3" className="tab" aria-label="Analysis Summary" defaultChecked />
-                <div className="tab-content bg-base-100 border-base-300 p-2">Analysis Summary</div>
+                <input type="radio" name="my_tabs_3" className="tab" aria-label="Dependency Graph" />
+                <div className="tab-content bg-base-100 border-base-300 p-2">
+                  <DependencyGraphViewer
+                    fileName={latestUpdate?.result_dependency_graph} // Ambil nama file dari URL
+                  />
+                </div>
+
+                <input type="radio" name="my_tabs_3" className="tab" aria-label="Analysis Summary" />
+                <div className="tab-content bg-base-100 border-base-300 p-2">
+
+                </div>
 
                 <input type="radio" name="my_tabs_3" className="tab" aria-label="Documentation Result" />
                 <div className="tab-content bg-base-100 border-base-300 p-2">

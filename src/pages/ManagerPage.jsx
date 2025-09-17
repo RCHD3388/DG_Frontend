@@ -53,7 +53,7 @@ function ManagerPage() {
         errorMessage = 'Failed to clear extracted project folders.';
         break;
       case DELETE_TYPES.ALL_DATA:
-        endpoint = '/data_manager/clear-all';
+        endpoint = '/files/';
         successMessage = 'All application data cleared successfully!';
         errorMessage = 'Failed to clear all application data.';
         break;
@@ -63,7 +63,6 @@ function ManagerPage() {
     }
 
     try {
-      print(endpoint)
       const response = await apiService.delete(endpoint);
       showToast(successMessage, 'success');
       console.log(`${type} deletion success:`, response.data);
