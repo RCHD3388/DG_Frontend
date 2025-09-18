@@ -158,7 +158,7 @@ function AnalyzePage() {
         </div>
 
         {/* Kolom Kanan: Area Hasil Analisis / Preview */}
-        <div className="lg:col-span-2 bg-base-100 rounded-lg shadow-xl p-6 flex flex-col h-full">
+        <div className="lg:col-span-2 bg-base-100 rounded-lg shadow-xl p-6 flex flex-col">
           <h2 className="text-2xl font-bold text-base-content mb-4 text-center">Analysis Results & Preview</h2>
 
           {!analysisResult && !isAnalyzing && (
