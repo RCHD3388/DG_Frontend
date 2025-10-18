@@ -5,7 +5,8 @@ import DocxViewer from '../components/DocxViewer'; // Pastikan ini diimpor
 import { apiService } from '../services/APIService';
 import { configService } from '../services/ConfigService';
 import ExtractionSummary from '../components/analyze_components/ExtractionSummary';
-import DependencyGraphViewer from '../components/analyze_components/DependencyGraphViewer';
+import ComponentViewer from '../components/analyze_components/ComponentViewer';
+import AnalysisSummaryViewer from '../components/analyze_components/AnalysisSummaryViewer';
 
 function AnalyzePage() {
   const { showToast } = useOutletContext();
@@ -43,13 +44,13 @@ function AnalyzePage() {
 
   useEffect(() => {
     fetchHistoricFiles();
-  }, [fetchHistoricFiles]);
+  }, []);
 
   useEffect(() => {
     console.log("Selected file ID changed:", taskId);
     if (!taskId) return;
 
-    const ws = new WebSocket(`${configService.getValue('VITE_BACKEND_API_BASE_URL')}/analyze/ws/subscribe/${taskId}`);
+    const ws = new WebSocket(`${configService.getValue('VITE_BACKEND_API_BASE_URL').replace(/^http/, 'ws')}/analyze/ws/subscribe/${taskId}`);
 
     // 2. MENGATUR EVENT HANDLERS
     ws.onopen = () => {
@@ -190,15 +191,20 @@ function AnalyzePage() {
                   />
                 </div>
 
-                <input type="radio" name="my_tabs_3" className="tab" aria-label="Dependency Graph" />
+                <input type="radio" name="my_tabs_3" className="tab" aria-label="Components" />
                 <div className="tab-content bg-base-100 border-base-300 p-2">
-                  <DependencyGraphViewer
+                  <ComponentViewer
                     fileName={latestUpdate?.result_dependency_graph} // Ambil nama file dari URL
+                    components={latestUpdate?.components}
+                    isComplete={isAnalyzing == false}
                   />
                 </div>
 
                 <input type="radio" name="my_tabs_3" className="tab" aria-label="Analysis Summary" />
                 <div className="tab-content bg-base-100 border-base-300 p-2">
+                  <AnalysisSummaryViewer
+                    componentsData={{}} 
+                    />
 
                 </div>
 
