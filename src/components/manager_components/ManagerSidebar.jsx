@@ -11,10 +11,9 @@ import { MdDashboard, MdStorage, MdSettings, MdHistory } from 'react-icons/md'; 
  */
 function ManagerSidebar({ activeSection, onSectionChange }) {
   const sidebarItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: <MdDashboard className="h-5 w-5" /> },
+    { id: 'documentations', label: 'Documentations', icon: <MdDashboard className="h-5 w-5" /> },
     { id: 'data_management', label: 'Data Management', icon: <MdStorage className="h-5 w-5" /> },
-    { id: 'settings', label: 'Settings', icon: <MdSettings className="h-5 w-5" /> },
-    { id: 'activity_log', label: 'Activity Log', icon: <MdHistory className="h-5 w-5" /> },
+    { id: 'config', label: 'Configs', icon: <MdSettings className="h-5 w-5" /> },
   ];
 
   return (

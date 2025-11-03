@@ -23,7 +23,7 @@ function ManagerPage() {
   const [confirmationTitle, setConfirmationTitle] = useState('');
 
   // State untuk mengelola bagian aktif di sidebar
-  const [activeManagerSection, setActiveManagerSection] = useState('data_management'); // Default ke Data Management
+  const [activeManagerSection, setActiveManagerSection] = useState('documentations'); // Default ke Data Management
 
   // --- HANDLER UNTUK LOGIKA PEMBERSIHAN ---
   const executeDeleteAction = useCallback(async (type) => {
@@ -124,7 +124,7 @@ function ManagerPage() {
   // --- RENDERING KONTEN BERDASARKAN activeManagerSection ---
   const renderContent = () => {
     switch (activeManagerSection) {
-      case 'dashboard':
+      case 'documentations':
         return (
           <div className="flex flex-col items-center justify-center h-full p-4">
             <h2 className="text-3xl font-bold text-base-content mb-6">Manager Dashboard</h2>
@@ -215,18 +215,11 @@ function ManagerPage() {
             </div>
           </div>
         );
-      case 'settings': // Contoh halaman lain
+      case 'config': // Contoh halaman lain
         return (
           <div className="flex flex-col items-center justify-center h-full p-4">
-            <h2 className="text-3xl font-bold text-base-content mb-6">Settings</h2>
+            <h2 className="text-3xl font-bold text-base-content mb-6">Configs</h2>
             <p className="text-base-content/80 text-lg">Application settings will be configured here.</p>
-          </div>
-        );
-      case 'activity_log': // Contoh halaman lain
-        return (
-          <div className="flex flex-col items-center justify-center h-full p-4">
-            <h2 className="text-3xl font-bold text-base-content mb-6">Activity Log</h2>
-            <p className="text-base-content/80 text-lg">System activity and user actions will be logged here.</p>
           </div>
         );
       default:

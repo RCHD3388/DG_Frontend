@@ -38,7 +38,7 @@ function Navbar() {
                 isActive ? "btn btn-sm btn-warning" : "btn btn-sm btn-ghost"
               }
             >
-              Redis
+              Applications
             </NavLink>
           </li>
         </ul>
