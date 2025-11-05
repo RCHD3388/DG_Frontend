@@ -30,6 +30,8 @@ function ManagerSidebar({ activeSection, onSectionChange }) {
         </li>
       ))}
     </ul>
+
+    
   );
 }
 

@@ -3,6 +3,8 @@ import { useOutletContext } from 'react-router-dom';
 import { apiService } from '../services/APIService';
 import ModalConfirm from '../components/ModalConfirm';
 import ManagerSidebar from '../components/manager_components/ManagerSidebar'; // Import ManagerSidebar
+import ConfigManagerContent from '../components/manager_components/ConfigManagerContent'; 
+import DocumentationManagerContent from '../components/manager_components/DocumentationManagerContent'; 
 
 // Definisikan tipe untuk aksi delete yang berbeda
 const DELETE_TYPES = {
@@ -126,11 +128,7 @@ function ManagerPage() {
     switch (activeManagerSection) {
       case 'documentations':
         return (
-          <div className="flex flex-col items-center justify-center h-full p-4">
-            <h2 className="text-3xl font-bold text-base-content mb-6">Manager Dashboard</h2>
-            <p className="text-base-content/80 text-lg">Overview of system status and quick actions will be here.</p>
-            {/* Tambahkan widget atau statistik di sini */}
-          </div>
+          <DocumentationManagerContent showToast={showToast}/>
         );
       case 'data_management':
         return (
@@ -217,10 +215,7 @@ function ManagerPage() {
         );
       case 'config': // Contoh halaman lain
         return (
-          <div className="flex flex-col items-center justify-center h-full p-4">
-            <h2 className="text-3xl font-bold text-base-content mb-6">Configs</h2>
-            <p className="text-base-content/80 text-lg">Application settings will be configured here.</p>
-          </div>
+          <ConfigManagerContent showToast={showToast} />
         );
       default:
         return null;
@@ -237,7 +232,7 @@ function ManagerPage() {
       <div className="w-full mx-auto flex flex-col lg:flex-row gap-4 h-full"
         style={{ minHeight: 'calc(100vh - 250px)', maxHeight: 'calc(100vh - 200px)' }}> {/* Container utama sidebar + content */}
         {/* Sidebar Kiri */}
-        <div className="lg:w-1/5 flex-shrink-0 bg-base-100 rounded-lg shadow-xl p-4"> {/* Lebar sidebar */}
+        <div className="lg:w-1/6 flex-shrink-0 bg-base-100 rounded-lg shadow-xl p-4"> {/* Lebar sidebar */}
           <ManagerSidebar activeSection={activeManagerSection} onSectionChange={setActiveManagerSection} />
         </div>
 

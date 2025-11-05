@@ -6,7 +6,8 @@ import { apiService } from '../services/APIService';
 import { configService } from '../services/ConfigService';
 import ExtractionSummary from '../components/analyze_components/ExtractionSummary';
 import ComponentViewer from '../components/analyze_components/ComponentViewer';
-import AnalysisSummaryViewer from '../components/analyze_components/AnalysisSummaryViewer';
+import DocumentationWebPreview from '../components/analyze_components/DocumentationWebPreview';
+import dummydata from '../../componentsdata.json';
 
 function AnalyzePage() {
   const { showToast } = useOutletContext();
@@ -21,6 +22,15 @@ function AnalyzePage() {
   const [isConnected, setIsConnected] = useState(false);
   const [latestUpdate, setLatestUpdate] = useState(null);
   const [taskId, setTaskId] = useState(null);
+
+  // === STATE BARU: Untuk Modal Konfigurasi ===
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [availableConfigs, setAvailableConfigs] = useState([]);
+  const [selectedConfig, setSelectedConfig] = useState('');
+  const [processName, setProcessName] = useState('');
+  const [previewContent, setPreviewContent] = useState('');
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+  // ===========================================
 
   const fetchHistoricFiles = useCallback(async () => {
     setIsLoadingFiles(true);
@@ -38,12 +48,24 @@ function AnalyzePage() {
     }
   }, [showToast]);
 
+  // === FUNGSI BARU: Mengambil daftar konfigurasi untuk dropdown ===
+  const fetchAvailableConfigs = useCallback(async () => {
+    try {
+      const response = await apiService.get('/configs');
+      setAvailableConfigs(response.data || []);
+    } catch (error) {
+      console.error("Error fetching configs:", error);
+      showToast('Failed to load available configurations.', 'error');
+    }
+  }, [showToast]);
+
   const handleRemoveHistoricFile = () => {
     showToast('File deletion is not allowed from this page.', 'info');
   };
 
   useEffect(() => {
     fetchHistoricFiles();
+    fetchAvailableConfigs();
   }, []);
 
   useEffect(() => {
@@ -83,23 +105,72 @@ function AnalyzePage() {
     };
   }, [taskId]);
 
-
-  const handleAnalyzeRepository = async () => {
+  // === HANDLER BARU: Membuka dan menutup modal ===
+  const handleOpenModal = () => {
     if (!selectedFileId) {
       showToast('Please select a repository file first!', 'info');
+      return;
+    }
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    // Reset state modal agar bersih saat dibuka lagi
+    setProcessName('');
+    setSelectedConfig('');
+    setPreviewContent('');
+  };
+
+  // === HANDLER BARU: Saat pilihan konfigurasi di dropdown berubah ===
+  const handleConfigChange = async (e) => {
+    const filename = e.target.value;
+    setSelectedConfig(filename);
+
+    if (!filename) {
+      setPreviewContent('');
+      return;
+    }
+
+    setIsPreviewLoading(true);
+    setPreviewContent('');
+    try {
+      // Menggunakan endpoint yang ada untuk mengambil konten file
+      const response = await apiService.get(`/configs/${filename}`);
+      setPreviewContent(response.data.content || 'Preview not available.');
+    } catch (error) {
+      console.error('Error fetching config preview:', error);
+      showToast('Failed to load config preview.', 'error');
+      setPreviewContent('Error loading preview.');
+    } finally {
+      setIsPreviewLoading(false);
+    }
+  };
+
+  const handleAnalyzeRepository = async () => {
+    if (!selectedFileId || !selectedConfig || !processName.trim()) {
+      showToast('Please provide a process name and select a configuration.', 'warning');
       return;
     }
 
     setIsAnalyzing(true);
     setTaskId(null);
     setAnalysisResult(null);
+    setLatestUpdate(null);  // Reset update dari websocket sebelumnya
+    handleCloseModal();     // Tutup modal setelah submit
 
     try {
-      const response = await apiService.post(`/analyze/${selectedFileId}`);
+      const payload = {
+        config_filename: selectedConfig,
+        process_name: processName.trim(),
+      };
+
+      const response = await apiService.post(`/analyze/${selectedFileId}`, payload);
+
       setTaskId(response.data.task_id);
+      setAnalysisResult(response);
 
       console.log('Analysis successful:', response);
-      setAnalysisResult(response);
       showToast('Repository analysis complete!', 'success');
 
     } catch (error) {
@@ -109,6 +180,14 @@ function AnalyzePage() {
       setIsAnalyzing(false);
     }
   };
+
+  useEffect(() => {
+    if(latestUpdate?.status == "completed"){
+      showToast(`Documentation is being generated`, 'success');
+    }else if(latestUpdate?.status == "failed"){
+      showToast(`Documentation generation failed`, 'error');
+    }
+  }, [latestUpdate])
 
   return (
     <div className="flex flex-col items-center justify-start py-8 min-h-[calc(100vh-160px)]">
@@ -142,10 +221,10 @@ function AnalyzePage() {
           </div>
           <button
             className="btn btn-primary btn-lg mt-6 w-full"
-            onClick={handleAnalyzeRepository}
-            disabled={!selectedFileId || isAnalyzing || (latestUpdate && latestUpdate?.status != "completed")}
+            onClick={handleOpenModal}
+            disabled={!selectedFileId || isAnalyzing || (latestUpdate && latestUpdate?.status != "completed" && latestUpdate?.status != "failed")}
           >
-            {(isAnalyzing || (latestUpdate && latestUpdate?.status != "completed")) ? (
+            {(isAnalyzing || (latestUpdate && latestUpdate?.status != "completed" && latestUpdate?.status != "failed")) ? (
               <>
                 <span className="loading loading-spinner loading-md"></span>
                 Analyzing...
@@ -200,11 +279,11 @@ function AnalyzePage() {
                   />
                 </div>
 
-                <input type="radio" name="my_tabs_3" className="tab" aria-label="Analysis Summary" />
+                <input type="radio" name="my_tabs_3" className="tab" aria-label="Web Preview Result" />
                 <div className="tab-content bg-base-100 border-base-300 p-2">
-                  <AnalysisSummaryViewer
-                    componentsData={{}} 
-                    />
+                  <DocumentationWebPreview
+                    documentationData={dummydata}
+                  />
 
                 </div>
 
@@ -228,6 +307,77 @@ function AnalyzePage() {
           )}
         </div>
       </div>
+
+
+      {/* === MODAL BARU UNTUK KONFIGURASI ANALISIS === */}
+      <dialog id="analyze_config_modal" className={`modal ${isModalOpen ? 'modal-open' : ''}`}>
+        <div className="modal-box w-11/12 max-w-3xl">
+          <h3 className="font-bold text-2xl">Configure Analysis Process</h3>
+          <p className="py-4 text-base-content/80">Provide a name for this process and select a configuration to use.</p>
+
+          {/* Form Inputs */}
+          <div className="space-y-4">
+            <div className="form-control w-full">
+              <legend class="fieldset-legend">Process Name</legend>
+              <input
+                type="text"
+                placeholder="e.g., 'Analysis for Project Alpha v1'"
+                className="input input-bordered w-full"
+                value={processName}
+                onChange={(e) => setProcessName(e.target.value)}
+              />
+            </div>
+            <div className="form-control w-full">
+              <legend class="fieldset-legend">Configurations</legend>
+              <select
+                className="select select-bordered"
+                value={selectedConfig}
+                onChange={handleConfigChange}
+              >
+                <option value="">Select a configuration</option>
+                {availableConfigs.map(config => (
+                  <option key={config.filename} value={config.filename}>
+                    {config.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Configuration Preview */}
+          {selectedConfig && (
+            <>
+              <div className="divider mt-6">Configuration Preview</div>
+              <div className="mockup-code p-4" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                {isPreviewLoading ? (
+                  <div className="flex justify-center items-center h-24">
+                    <span className="loading loading-spinner loading-md"></span>
+                  </div>
+                ) : (
+                  <pre data-prefix=""><code>{previewContent}</code></pre>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* Modal Actions */}
+          <div className="modal-action mt-6">
+            <button className="btn btn-ghost" onClick={handleCloseModal}>Cancel</button>
+            <button
+              className="btn btn-primary"
+              onClick={handleAnalyzeRepository}
+              disabled={!processName.trim() || !selectedConfig}
+            >
+              Start Analysis
+            </button>
+          </div>
+        </div>
+        {/* Klik di luar untuk menutup */}
+        <form method="dialog" className="modal-backdrop">
+          <button onClick={handleCloseModal}>close</button>
+        </form>
+      </dialog>
+
     </div>
   );
 }

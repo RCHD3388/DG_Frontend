@@ -38,9 +38,43 @@ function ComponentViewer({ fileName, components = {}, isComplete = false }) {
   }, [fileName, showToast, componentsApiUrl]); // Tambahkan componentsApiUrl ke dependencies
 
   useEffect(() => {
-    console.log("dari comp page: "+ fileName)
+    console.log("dari comp page: " + fileName)
     fetchComponentsData();
   }, [fileName]);
+
+  const handleDownload = async () => {
+    try {
+      // PENTING: Minta response sebagai 'blob'
+      const response = await apiService.get(componentsApiUrl, {
+        responseType: 'blob',
+      });
+      const jsonString = JSON.stringify(response, null, 2);
+
+      // 3. Buat Blob dari string tersebut, dan TENTUKAN TIPE MIME-nya.
+      // Ini adalah best practice yang penting.
+      const blob = new Blob([jsonString], { type: 'application/json' });
+
+      // 4. Buat URL dari Blob
+      const url = window.URL.createObjectURL(blob);
+
+      // Buat elemen <a> sementara untuk memicu download
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', fileName); // Set nama file saat di-download
+
+      // Tambahkan ke DOM, klik, lalu hapus
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Hapus URL sementara dari memori
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error('Error downloading component:', error);
+      showToast(error.response?.data?.detail || `Failed to download ${fileName}.`, 'error');
+    }
+  };
 
   // Hitung total dan kategori komponen
   const totalComponents = componentsData ? Object.keys(componentsData).length : 0;
@@ -69,10 +103,10 @@ function ComponentViewer({ fileName, components = {}, isComplete = false }) {
 
   if (!componentsData || totalComponents === 0) {
     return (
-        <div className="flex flex-col items-center justify-center p-6 bg-base-200 rounded-lg h-96 text-base-content/70">
-            <MdOutlineInfo className="h-10 w-10 mb-4" />
-            <p className="text-lg">No component data available for this file.</p>
-        </div>
+      <div className="flex flex-col items-center justify-center p-6 bg-base-200 rounded-lg h-96 text-base-content/70">
+        <MdOutlineInfo className="h-10 w-10 mb-4" />
+        <p className="text-lg">No component data available for this file.</p>
+      </div>
     );
   }
 
@@ -103,16 +137,13 @@ function ComponentViewer({ fileName, components = {}, isComplete = false }) {
         {/* Tombol Download */}
         {fileName && isComplete && (
           <div className="flex justify-end mb-4">
-            <a 
-              href={downloadFullUrl} 
-              download={fileName} 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <button
+              onClick={handleDownload}
               className="btn btn-outline btn-info btn-sm"
             >
               <MdOutlineDownload className="h-5 w-5 mr-2" />
               Download {fileName}
-            </a>
+            </button>
           </div>
         )}
 
@@ -153,9 +184,9 @@ function ComponentViewer({ fileName, components = {}, isComplete = false }) {
                   </p>
                   {/* Tampilkan docstring awal jika ada */}
                   {component.docstring && (
-                      <blockquote className="text-xs text-base-content/80 italic border-l-2 border-primary pl-2 mt-2 max-h-20 overflow-y-auto">
-                          {component.docstring.split('\n')[0]} {/* Hanya baris pertama docstring untuk ringkasan */}
-                      </blockquote>
+                    <blockquote className="text-xs text-base-content/80 italic border-l-2 border-primary pl-2 mt-2 max-h-20 overflow-y-auto">
+                      {component.docstring.split('\n')[0]} {/* Hanya baris pertama docstring untuk ringkasan */}
+                    </blockquote>
                   )}
                 </li>
               ))}

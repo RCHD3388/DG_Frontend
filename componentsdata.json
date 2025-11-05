@@ -1,0 +1,398 @@
+{
+    "_id": "6e8d4bd4-5bc6-4495-a97d-241ebee5c605",
+    "name": "AnusAnalyze_10_Components",
+    "components": [
+        {
+            "method_components": [
+                {
+                    "id": "core.agent.tool_agent.ToolAgent.load_tool",
+                    "component_type": "method",
+                    "file_path": "D:\\ISTTS\\Semester_7\\TA\\Project_TA\\DG_Backend\\app\\extracted_projects\\6e8d4bd4-5bc6-4495-a97d-241ebee5c605\\anus\\core\\agent\\tool_agent.py",
+                    "relative_path": "core\\agent\\tool_agent.py",
+                    "depends_on": [],
+                    "used_by": [
+                        "core.agent.tool_agent.ToolAgent",
+                        "core.agent.tool_agent.ToolAgent._execute_action",
+                        "core.agent.tool_agent.ToolAgent.__init__"
+                    ],
+                    "docgen_final_state": {
+                        "final_state": {
+                            "docstring": "Memuat tool berdasarkan namanya dan mendaftarkannya ke agent.\n\nMetode ini bertanggung jawab untuk secara dinamis mengimpor, menginstansiasi, dan mendaftarkan tool ke dalam `ToolAgent`. Tujuannya adalah untuk memungkinkan agent memperluas kemampuannya pada saat runtime tanpa memerlukan modifikasi kode inti. Fungsi ini dipanggil ketika `ToolAgent` diinisialisasi dengan daftar tool yang ditentukan, atau secara otomatis oleh metode internal seperti `_execute_action` jika tool yang diminta belum dimuat. Secara garis besar, metode ini membangun jalur modul berdasarkan `tool_name` (misalnya, `anus.tools.nama_tool`), mengimpor modul tersebut, menemukan kelas tool yang sesuai (dengan asumsi konvensi penamaan seperti `NamaToolTool`), menginstansiasi kelas tersebut, dan menyimpannya dalam kamus `self.tools` untuk penggunaan selanjutnya.\n\nParameters\n----------\ntool_name : str\n    Nama unik dari tool yang akan dimuat. Nama ini digunakan untuk membangun jalur modul Python yang akan diimpor (misalnya, 'my_tool' akan mengarah ke `anus.tools.my_tool`) dan juga untuk menyimpulkan nama kelas tool di dalam modul (misalnya, 'my_tool' akan mencari kelas 'MyToolTool'). Penting untuk memastikan bahwa `tool_name` sesuai dengan konvensi penamaan modul dan kelas yang diharapkan agar proses pemuatan berhasil.\n\nReturns\n-------\nbool\n    Mengembalikan `True` jika tool berhasil diimpor, diinstansiasi, dan didaftarkan ke kamus `self.tools` milik agent. Mengembalikan `False` jika terjadi kesalahan selama proses pemuatan, seperti modul tidak ditemukan, kelas tool tidak ada di dalam modul, atau error lain saat instansiasi tool. Nilai ini memungkinkan pemanggil untuk mengetahui apakah tool siap digunakan.\n\nRaises\n------\nImportError\n    Di-raise jika modul Python yang sesuai dengan `tool_name` tidak dapat ditemukan atau diimpor (misalnya, `anus.tools.nama_tool_tidak_ada`). Pengguna dapat mencegah ini dengan memastikan tool yang diminta benar-benar ada di jalur modul yang ditentukan.\nAttributeError\n    Di-raise jika modul tool berhasil diimpor tetapi kelas tool yang diharapkan (berdasarkan konvensi penamaan) tidak ditemukan di dalam modul tersebut. Pengguna harus memastikan kelas tool memiliki nama yang benar (misalnya, untuk `tool_name='my_tool'`, kelas harus bernama `MyToolTool`).\nException\n    Di-raise untuk setiap kesalahan lain yang tidak terduga yang mungkin terjadi selama proses instansiasi tool (misalnya, error dalam konstruktor tool itu sendiri). Ini menunjukkan masalah internal dengan implementasi tool yang sedang dimuat.\n\nSee Also\n--------\nToolAgent.__init__ : Metode inisialisasi yang dapat memanggil `load_tool` untuk memuat tool awal.\nToolAgent._execute_action : Metode internal yang dapat memanggil `load_tool` jika tindakan yang diminta sesuai dengan tool yang belum dimuat.\n\nNotes\n-----\nMetode ini sangat bergantung pada konvensi penamaan untuk modul dan kelas tool. Modul tool diharapkan berada di bawah paket `anus.tools`, dan kelas tool di dalamnya diharapkan memiliki nama yang merupakan versi kapitalisasi `tool_name` diikuti dengan 'Tool' (misalnya, `my_tool` -> `MyToolTool`). Kegagalan untuk mematuhi konvensi ini akan menyebabkan `ImportError` atau `AttributeError`.\n\nExamples\n--------\n```python\n>>> from core.agent.tool_agent import ToolAgent\n>>> # Asumsikan ada tool bernama 'search' yang terletak di 'anus.tools.search.SearchTool'\n>>> agent = ToolAgent()\n>>> success = agent.load_tool(\"search\")\n>>> print(success)\nTrue\n>>> # Mencoba memuat tool yang tidak ada atau salah nama\n>>> failure = agent.load_tool(\"non_existent_tool\")\n>>> print(failure)\nFalse\n```",
+                            "reader_search_attempts": 0,
+                            "verifier_rejection_count": 0,
+                            "documentation_json": {
+                                "short_summary": "Memuat tool berdasarkan namanya dan mendaftarkannya ke agent.",
+                                "deprecation_warning": null,
+                                "extended_summary": "Metode ini bertanggung jawab untuk secara dinamis mengimpor, menginstansiasi, dan mendaftarkan tool ke dalam `ToolAgent`. Tujuannya adalah untuk memungkinkan agent memperluas kemampuannya pada saat runtime tanpa memerlukan modifikasi kode inti. Fungsi ini dipanggil ketika `ToolAgent` diinisialisasi dengan daftar tool yang ditentukan, atau secara otomatis oleh metode internal seperti `_execute_action` jika tool yang diminta belum dimuat. Secara garis besar, metode ini membangun jalur modul berdasarkan `tool_name` (misalnya, `anus.tools.nama_tool`), mengimpor modul tersebut, menemukan kelas tool yang sesuai (dengan asumsi konvensi penamaan seperti `NamaToolTool`), menginstansiasi kelas tersebut, dan menyimpannya dalam kamus `self.tools` untuk penggunaan selanjutnya.",
+                                "parameters": [
+                                    {
+                                        "name": "tool_name",
+                                        "type": "str",
+                                        "description": "Nama unik dari tool yang akan dimuat. Nama ini digunakan untuk membangun jalur modul Python yang akan diimpor (misalnya, 'my_tool' akan mengarah ke `anus.tools.my_tool`) dan juga untuk menyimpulkan nama kelas tool di dalam modul (misalnya, 'my_tool' akan mencari kelas 'MyToolTool'). Penting untuk memastikan bahwa `tool_name` sesuai dengan konvensi penamaan modul dan kelas yang diharapkan agar proses pemuatan berhasil.",
+                                        "default": null
+                                    }
+                                ],
+                                "attributes": null,
+                                "methods": null,
+                                "returns": [
+                                    {
+                                        "name": null,
+                                        "type": "bool",
+                                        "description": "Mengembalikan `True` jika tool berhasil diimpor, diinstansiasi, dan didaftarkan ke kamus `self.tools` milik agent. Mengembalikan `False` jika terjadi kesalahan selama proses pemuatan, seperti modul tidak ditemukan, kelas tool tidak ada di dalam modul, atau error lain saat instansiasi tool. Nilai ini memungkinkan pemanggil untuk mengetahui apakah tool siap digunakan."
+                                    }
+                                ],
+                                "yields": null,
+                                "receives": null,
+                                "other_parameters": null,
+                                "raises": [
+                                    {
+                                        "error": "ImportError",
+                                        "description": "Di-raise jika modul Python yang sesuai dengan `tool_name` tidak dapat ditemukan atau diimpor (misalnya, `anus.tools.nama_tool_tidak_ada`). Pengguna dapat mencegah ini dengan memastikan tool yang diminta benar-benar ada di jalur modul yang ditentukan."
+                                    },
+                                    {
+                                        "error": "AttributeError",
+                                        "description": "Di-raise jika modul tool berhasil diimpor tetapi kelas tool yang diharapkan (berdasarkan konvensi penamaan) tidak ditemukan di dalam modul tersebut. Pengguna harus memastikan kelas tool memiliki nama yang benar (misalnya, untuk `tool_name='my_tool'`, kelas harus bernama `MyToolTool`)."
+                                    },
+                                    {
+                                        "error": "Exception",
+                                        "description": "Di-raise untuk setiap kesalahan lain yang tidak terduga yang mungkin terjadi selama proses instansiasi tool (misalnya, error dalam konstruktor tool itu sendiri). Ini menunjukkan masalah internal dengan implementasi tool yang sedang dimuat."
+                                    }
+                                ],
+                                "warns": null,
+                                "warnings_section": null,
+                                "see_also": [
+                                    {
+                                        "name": "ToolAgent.__init__",
+                                        "description": "Metode inisialisasi yang dapat memanggil `load_tool` untuk memuat tool awal."
+                                    },
+                                    {
+                                        "name": "ToolAgent._execute_action",
+                                        "description": "Metode internal yang dapat memanggil `load_tool` jika tindakan yang diminta sesuai dengan tool yang belum dimuat."
+                                    }
+                                ],
+                                "notes": "Metode ini sangat bergantung pada konvensi penamaan untuk modul dan kelas tool. Modul tool diharapkan berada di bawah paket `anus.tools`, dan kelas tool di dalamnya diharapkan memiliki nama yang merupakan versi kapitalisasi `tool_name` diikuti dengan 'Tool' (misalnya, `my_tool` -> `MyToolTool`). Kegagalan untuk mematuhi konvensi ini akan menyebabkan `ImportError` atau `AttributeError`.",
+                                "references": null,
+                                "examples": "```python\n>>> from core.agent.tool_agent import ToolAgent\n>>> # Asumsikan ada tool bernama 'search' yang terletak di 'anus.tools.search.SearchTool'\n>>> agent = ToolAgent()\n>>> success = agent.load_tool(\"search\")\n>>> print(success)\nTrue\n>>> # Mencoba memuat tool yang tidak ada atau salah nama\n>>> failure = agent.load_tool(\"non_existent_tool\")\n>>> print(failure)\nFalse\n```",
+                                "keywords": [
+                                    "tool loading",
+                                    "dynamic import",
+                                    "agent capabilities",
+                                    "plugin system",
+                                    "runtime extension"
+                                ]
+                            }
+                        },
+                        "usage_stats": {
+                            "components": {
+                                "seq:step:2": {
+                                    "call_count": 2,
+                                    "input_tokens": 6888,
+                                    "output_tokens": 3348,
+                                    "total_tokens": 10236
+                                },
+                                "seq:step:3": {
+                                    "call_count": 1,
+                                    "input_tokens": 4187,
+                                    "output_tokens": 2061,
+                                    "total_tokens": 6248
+                                }
+                            },
+                            "total": {
+                                "call_count": 3,
+                                "input_tokens": 11075,
+                                "output_tokens": 5409,
+                                "total_tokens": 16484
+                            }
+                        }
+                    },
+                    "component_signature": "def load_tool(self, tool_name: str) -> bool:",
+                    "start_line": 43,
+                    "end_line": 74,
+                    "has_docstring": true,
+                    "dependency_graph_url": "main_main.png",
+                    "docstring": "\n        Load a tool by name.\n        \n        Args:\n            tool_name: The name of the tool to load.\n            \n        Returns:\n            True if the tool was successfully loaded, False otherwise.\n        "
+                },
+                {
+                    "id": "core.memory.base_memory.BaseMemory.get",
+                    "component_type": "method",
+                    "file_path": "D:\\ISTTS\\Semester_7\\TA\\Project_TA\\DG_Backend\\app\\extracted_projects\\6e8d4bd4-5bc6-4495-a97d-241ebee5c605\\anus\\core\\memory\\base_memory.py",
+                    "relative_path": "core\\memory\\base_memory.py",
+                    "depends_on": [],
+                    "used_by": [
+                        "core.memory.base_memory.BaseMemory"
+                    ],
+                    "docgen_final_state": {
+                        "final_state": {
+                            "docstring": "Mengambil item dari memori berdasarkan identifikatornya.\n\nMetode ini merupakan bagian inti dari fungsionalitas sistem memori, dirancang untuk menyediakan mekanisme standar untuk mengakses data yang telah disimpan. Tujuan utamanya adalah untuk memungkinkan komponen lain dalam kerangka kerja ANUS untuk mengambil informasi spesifik yang diperlukan. Metode ini idealnya dipanggil setiap kali aplikasi membutuhkan akses ke data yang sebelumnya disimpan, menggunakan kunci unik untuk menemukannya. Dalam alur kerja sistem, `get` berfungsi sebagai operasi 'baca' fundamental, melengkapi operasi 'tulis' (misalnya, `set` atau `add`). Karena ini adalah metode abstrak, implementasi konkret di subclass `BaseMemory` akan menentukan pendekatan bagaimana data dicari dan diambil dari penyimpanan aktual, seperti database, cache, atau sistem file.\n\nParameters\n----------\nidentifier : str\n    String unik yang digunakan untuk mengidentifikasi item yang akan diambil dari memori. Parameter ini sangat penting karena berfungsi sebagai kunci pencarian utama. Sebaiknya berupa string non-kosong yang secara akurat merepresentasikan kunci data yang diinginkan. Tidak ada interdependensi langsung dengan parameter lain, namun keunikannya menjamin pengambilan item yang benar.\n\nReturns\n-------\nOptional[Dict[str, Any]]\n    Mengembalikan item yang ditemukan sebagai `Dict[str, Any]` jika identifikasi cocok dengan data yang ada di memori. Jika tidak ada item yang ditemukan dengan `identifier` yang diberikan, metode ini akan mengembalikan `None`. Representasi `Dict` memungkinkan penyimpanan data terstruktur dan fleksibel. Nilai kembalian bergantung sepenuhnya pada keberadaan `identifier` dalam sistem memori.\n\nNotes\n-----\nSebagai metode abstrak, `get` harus diimplementasikan oleh semua subclass konkret dari `BaseMemory`. Implementasi spesifik akan menentukan bagaimana data disimpan dan diambil dari media penyimpanan yang mendasarinya.",
+                            "reader_search_attempts": 0,
+                            "verifier_rejection_count": 1,
+                            "documentation_json": {
+                                "short_summary": "Mengambil item dari memori berdasarkan identifikatornya.",
+                                "deprecation_warning": null,
+                                "extended_summary": "Metode ini merupakan bagian inti dari fungsionalitas sistem memori, dirancang untuk menyediakan mekanisme standar untuk mengakses data yang telah disimpan. Tujuan utamanya adalah untuk memungkinkan komponen lain dalam kerangka kerja ANUS untuk mengambil informasi spesifik yang diperlukan. Metode ini idealnya dipanggil setiap kali aplikasi membutuhkan akses ke data yang sebelumnya disimpan, menggunakan kunci unik untuk menemukannya. Dalam alur kerja sistem, `get` berfungsi sebagai operasi 'baca' fundamental, melengkapi operasi 'tulis' (misalnya, `set` atau `add`). Karena ini adalah metode abstrak, implementasi konkret di subclass `BaseMemory` akan menentukan pendekatan bagaimana data dicari dan diambil dari penyimpanan aktual, seperti database, cache, atau sistem file.",
+                                "parameters": [
+                                    {
+                                        "name": "identifier",
+                                        "type": "str",
+                                        "description": "String unik yang digunakan untuk mengidentifikasi item yang akan diambil dari memori. Parameter ini sangat penting karena berfungsi sebagai kunci pencarian utama. Sebaiknya berupa string non-kosong yang secara akurat merepresentasikan kunci data yang diinginkan. Tidak ada interdependensi langsung dengan parameter lain, namun keunikannya menjamin pengambilan item yang benar.",
+                                        "default": null
+                                    }
+                                ],
+                                "attributes": null,
+                                "methods": null,
+                                "returns": [
+                                    {
+                                        "name": null,
+                                        "type": "Optional[Dict[str, Any]]",
+                                        "description": "Mengembalikan item yang ditemukan sebagai `Dict[str, Any]` jika identifikasi cocok dengan data yang ada di memori. Jika tidak ada item yang ditemukan dengan `identifier` yang diberikan, metode ini akan mengembalikan `None`. Representasi `Dict` memungkinkan penyimpanan data terstruktur dan fleksibel. Nilai kembalian bergantung sepenuhnya pada keberadaan `identifier` dalam sistem memori."
+                                    }
+                                ],
+                                "yields": null,
+                                "receives": null,
+                                "other_parameters": null,
+                                "raises": null,
+                                "warns": null,
+                                "warnings_section": null,
+                                "see_also": null,
+                                "notes": "Sebagai metode abstrak, `get` harus diimplementasikan oleh semua subclass konkret dari `BaseMemory`. Implementasi spesifik akan menentukan bagaimana data disimpan dan diambil dari media penyimpanan yang mendasarinya.",
+                                "references": null,
+                                "examples": null,
+                                "keywords": [
+                                    "memory",
+                                    "retrieve",
+                                    "data access",
+                                    "abstract method",
+                                    "identifier"
+                                ]
+                            }
+                        },
+                        "usage_stats": {
+                            "components": {
+                                "seq:step:2": {
+                                    "call_count": 3,
+                                    "input_tokens": 5446,
+                                    "output_tokens": 4830,
+                                    "total_tokens": 10276
+                                },
+                                "seq:step:3": {
+                                    "call_count": 2,
+                                    "input_tokens": 8005,
+                                    "output_tokens": 2161,
+                                    "total_tokens": 10166
+                                }
+                            },
+                            "total": {
+                                "call_count": 5,
+                                "input_tokens": 13451,
+                                "output_tokens": 6991,
+                                "total_tokens": 20442
+                            }
+                        }
+                    },
+                    "component_signature": "def get(self, identifier: str) -> Optional[Dict[str, Any]]:",
+                    "start_line": 37,
+                    "end_line": 48,
+                    "has_docstring": true,
+                    "dependency_graph_url": "main_main.png",
+                    "docstring": "\n        Retrieve an item from memory by its identifier.\n        \n        Args:\n            identifier: The identifier of the item to retrieve.\n            \n        Returns:\n            The retrieved item, or None if not found.\n        "
+                }
+            ],
+            "id": "core.orchestrator.AgentOrchestrator._merge_configs",
+            "component_type": "method",
+            "file_path": "D:\\ISTTS\\Semester_7\\TA\\Project_TA\\DG_Backend\\app\\extracted_projects\\6e8d4bd4-5bc6-4495-a97d-241ebee5c605\\anus\\core\\orchestrator.py",
+            "relative_path": "core\\orchestrator.py",
+            "depends_on": [],
+            "used_by": [
+                "core.orchestrator.AgentOrchestrator._load_config",
+                "core.orchestrator.AgentOrchestrator._create_specialized_agents",
+                "core.orchestrator.AgentOrchestrator"
+            ],
+            "docgen_final_state": {
+                "final_state": {
+                    "docstring": "Menggabungkan dua kamus konfigurasi secara rekursif.\n\nMetode ini bertujuan untuk menggabungkan dua kamus konfigurasi, di mana kamus `override` akan menimpa nilai yang ada di kamus `default`. Ini sangat berguna untuk menerapkan pengaturan kustom sambil mempertahankan nilai default yang telah ditentukan. Idealnya dipanggil saat aplikasi perlu memuat konfigurasi dari berbagai sumber (misalnya, default bawaan dan file konfigurasi pengguna) dan menggabungkannya menjadi satu set pengaturan akhir. Metode ini adalah bagian integral dari proses inisialisasi `AgentOrchestrator`, khususnya dalam metode `_load_config` dan `_create_specialized_agents`, di mana ia digunakan untuk menggabungkan konfigurasi default dengan pengaturan yang dimuat dari file atau pengaturan khusus agen. Implementasinya menggunakan pendekatan rekursif: ia membuat salinan kamus `default` dan kemudian mengiterasi melalui kamus `override`. Jika sebuah kunci ada di kedua kamus dan kedua nilainya adalah kamus, maka penggabungan rekursif dilakukan untuk sub-kamus tersebut. Jika tidak, nilai dari kamus `override` akan menimpa nilai di kamus `default`.\n\nParameters\n----------\ndefault : Dict[str, Any]\n    Kamus yang berisi konfigurasi dasar atau nilai-nilai standar. Ini berfungsi sebagai fondasi yang akan dimodifikasi atau ditimpa oleh konfigurasi `override`. Penting untuk memastikan struktur kamus ini konsisten dengan ekspektasi sistem.\noverride : Dict[str, Any]\n    Kamus yang berisi konfigurasi yang akan menimpa atau melengkapi nilai-nilai dalam kamus `default`. Parameter ini memungkinkan penyesuaian pengaturan tanpa mengubah struktur dasar. Nilai di sini akan diutamakan jika ada konflik kunci.\n\nReturns\n-------\nDict[str, Any]\n    Kamus baru yang merupakan hasil penggabungan `default` dan `override`. Kamus ini akan mencerminkan semua kunci dari `default`, dengan nilai-nilai yang ditimpa oleh `override` di mana ada konflik, dan kunci-kunci baru dari `override` juga akan disertakan. Struktur rekursif dipertahankan untuk sub-kamus.\n\nExamples\n--------\n>>> from core.orchestrator import AgentOrchestrator\n>>> orchestrator = AgentOrchestrator()\n>>> default_cfg = {\"agent\": {\"mode\": \"single\", \"max_iterations\": 10}, \"tools\": {\"enabled\": []}}\n>>> override_cfg = {\"agent\": {\"mode\": \"multi\"}, \"tools\": {\"enabled\": [\"search\", \"browse\"]}}\n>>> merged_cfg = orchestrator._merge_configs(default_cfg, override_cfg)\n>>> print(merged_cfg)\n{'agent': {'mode': 'multi', 'max_iterations': 10}, 'tools': {'enabled': ['search', 'browse']}}\n\n>>> # Contoh dengan sub-kamus yang tidak ada di default\n>>> default_cfg_2 = {\"memory\": {\"capacity\": 1000}}\n>>> override_cfg_2 = {\"memory\": {\"ttl\": 3600}, \"logging\": {\"level\": \"INFO\"}}\n>>> merged_cfg_2 = orchestrator._merge_configs(default_cfg_2, override_cfg_2)\n>>> print(merged_cfg_2)\n{'memory': {'capacity': 1000, 'ttl': 3600}, 'logging': {'level': 'INFO'}}",
+                    "reader_search_attempts": 0,
+                    "verifier_rejection_count": 0,
+                    "documentation_json": {
+                        "short_summary": "Menggabungkan dua kamus konfigurasi secara rekursif.",
+                        "deprecation_warning": null,
+                        "extended_summary": "Metode ini bertujuan untuk menggabungkan dua kamus konfigurasi, di mana kamus `override` akan menimpa nilai yang ada di kamus `default`. Ini sangat berguna untuk menerapkan pengaturan kustom sambil mempertahankan nilai default yang telah ditentukan. Idealnya dipanggil saat aplikasi perlu memuat konfigurasi dari berbagai sumber (misalnya, default bawaan dan file konfigurasi pengguna) dan menggabungkannya menjadi satu set pengaturan akhir. Metode ini adalah bagian integral dari proses inisialisasi `AgentOrchestrator`, khususnya dalam metode `_load_config` dan `_create_specialized_agents`, di mana ia digunakan untuk menggabungkan konfigurasi default dengan pengaturan yang dimuat dari file atau pengaturan khusus agen. Implementasinya menggunakan pendekatan rekursif: ia membuat salinan kamus `default` dan kemudian mengiterasi melalui kamus `override`. Jika sebuah kunci ada di kedua kamus dan kedua nilainya adalah kamus, maka penggabungan rekursif dilakukan untuk sub-kamus tersebut. Jika tidak, nilai dari kamus `override` akan menimpa nilai di kamus `default`.",
+                        "parameters": [
+                            {
+                                "name": "default",
+                                "type": "Dict[str, Any]",
+                                "description": "Kamus yang berisi konfigurasi dasar atau nilai-nilai standar. Ini berfungsi sebagai fondasi yang akan dimodifikasi atau ditimpa oleh konfigurasi `override`. Penting untuk memastikan struktur kamus ini konsisten dengan ekspektasi sistem.",
+                                "default": null
+                            },
+                            {
+                                "name": "override",
+                                "type": "Dict[str, Any]",
+                                "description": "Kamus yang berisi konfigurasi yang akan menimpa atau melengkapi nilai-nilai dalam kamus `default`. Parameter ini memungkinkan penyesuaian pengaturan tanpa mengubah struktur dasar. Nilai di sini akan diutamakan jika ada konflik kunci.",
+                                "default": null
+                            }
+                        ],
+                        "attributes": null,
+                        "methods": null,
+                        "returns": [
+                            {
+                                "name": null,
+                                "type": "Dict[str, Any]",
+                                "description": "Kamus baru yang merupakan hasil penggabungan `default` dan `override`. Kamus ini akan mencerminkan semua kunci dari `default`, dengan nilai-nilai yang ditimpa oleh `override` di mana ada konflik, dan kunci-kunci baru dari `override` juga akan disertakan. Struktur rekursif dipertahankan untuk sub-kamus."
+                            }
+                        ],
+                        "yields": null,
+                        "receives": null,
+                        "other_parameters": null,
+                        "raises": null,
+                        "warns": null,
+                        "warnings_section": null,
+                        "see_also": null,
+                        "notes": null,
+                        "references": null,
+                        "examples": ">>> from core.orchestrator import AgentOrchestrator\n>>> orchestrator = AgentOrchestrator()\n>>> default_cfg = {\"agent\": {\"mode\": \"single\", \"max_iterations\": 10}, \"tools\": {\"enabled\": []}}\n>>> override_cfg = {\"agent\": {\"mode\": \"multi\"}, \"tools\": {\"enabled\": [\"search\", \"browse\"]}}\n>>> merged_cfg = orchestrator._merge_configs(default_cfg, override_cfg)\n>>> print(merged_cfg)\n{'agent': {'mode': 'multi', 'max_iterations': 10}, 'tools': {'enabled': ['search', 'browse']}}\n\n>>> # Contoh dengan sub-kamus yang tidak ada di default\n>>> default_cfg_2 = {\"memory\": {\"capacity\": 1000}}\n>>> override_cfg_2 = {\"memory\": {\"ttl\": 3600}, \"logging\": {\"level\": \"INFO\"}}\n>>> merged_cfg_2 = orchestrator._merge_configs(default_cfg_2, override_cfg_2)\n>>> print(merged_cfg_2)\n{'memory': {'capacity': 1000, 'ttl': 3600}, 'logging': {'level': 'INFO'}}",
+                        "keywords": [
+                            "configuration",
+                            "merge",
+                            "dictionary",
+                            "recursive",
+                            "settings"
+                        ]
+                    }
+                },
+                "usage_stats": {
+                    "components": {
+                        "seq:step:2": {
+                            "call_count": 2,
+                            "input_tokens": 7653,
+                            "output_tokens": 4582,
+                            "total_tokens": 12235
+                        },
+                        "seq:step:3": {
+                            "call_count": 1,
+                            "input_tokens": 4421,
+                            "output_tokens": 2039,
+                            "total_tokens": 6460
+                        }
+                    },
+                    "total": {
+                        "call_count": 3,
+                        "input_tokens": 12074,
+                        "output_tokens": 6621,
+                        "total_tokens": 18695
+                    }
+                }
+            },
+            "component_signature": "def _merge_configs(self, default: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:",
+            "start_line": 266,
+            "end_line": 285,
+            "has_docstring": true,
+            "dependency_graph_url": "main_main.png",
+            "docstring": "\n        Merge two configuration dictionaries.\n        \n        Args:\n            default: Default configuration.\n            override: Override configuration.\n            \n        Returns:\n            The merged configuration.\n        "
+        },
+        {
+            "id": "core.planning.task_planner.TaskPlanner._process_plan_data",
+            "component_type": "method",
+            "file_path": "D:\\ISTTS\\Semester_7\\TA\\Project_TA\\DG_Backend\\app\\extracted_projects\\6e8d4bd4-5bc6-4495-a97d-241ebee5c605\\anus\\core\\planning\\task_planner.py",
+            "relative_path": "core\\planning\\task_planner.py",
+            "depends_on": [],
+            "used_by": [
+                "core.planning.task_planner.TaskPlanner",
+                "core.planning.task_planner.TaskPlanner.create_plan"
+            ],
+            "docgen_final_state": {
+                "final_state": {
+                    "docstring": "Memproses data plan mentah menjadi struktur plan yang terdefinisi.\n\nMetode ini bertanggung jawab untuk mengubah output mentah yang dihasilkan oleh model bahasa (LLM) menjadi objek plan yang terstruktur dan siap digunakan. Tujuan utamanya adalah untuk memastikan bahwa setiap langkah dalam plan memiliki identifikasi unik dan properti yang diperlukan untuk eksekusi lebih lanjut, seperti `tool_input` dan `dependencies` yang diinisialisasi secara default jika tidak disediakan. Metode ini dipanggil setelah LLM berhasil mengekstrak data plan dari prompt, berfungsi sebagai tahap finalisasi sebelum plan dikembalikan. Dalam alur kerja `TaskPlanner`, ini adalah langkah krusial untuk menstandarisasi format plan, memungkinkan sistem lain untuk mengkonsumsi dan mengeksekusi langkah-langkah tugas dengan konsisten. Pendekatan implementasinya melibatkan iterasi melalui langkah-langkah yang diusulkan oleh LLM, menambahkan ID unik menggunakan UUID, dan memastikan keberadaan kunci-kunci penting, kemudian mengagregasikan semua informasi ke dalam struktur kamus plan yang lengkap dengan metadata tambahan.\n\nParameters\n----------\ntask : str\n    Deskripsi tugas asli yang menjadi dasar pembuatan plan. Parameter ini penting untuk mengaitkan plan yang dihasilkan dengan tujuan awal dan memastikan konsistensi dalam pelacakan tugas.\nplan_data : Dict[str, Any]\n    Data plan mentah yang diterima langsung dari model bahasa. Data ini diharapkan berisi kunci 'steps' (daftar langkah), 'reasoning' (penjelasan plan), dan 'estimated_steps' (perkiraan jumlah langkah). Kelengkapan dan format data ini akan divalidasi dan distrukturkan lebih lanjut oleh metode ini.\n\nReturns\n-------\nDict[str, Any]\n    Kamus yang merepresentasikan plan tugas yang telah distrukturkan dan divalidasi. Plan ini mencakup 'id' unik, 'task' asli, 'status' awal ('created'), 'created_at' timestamp, daftar 'steps' yang telah diperkaya (dengan ID, tool_input, dependencies), 'reasoning' dari LLM, 'current_step_index' (0), 'completed_steps' (kosong), dan 'metadata' termasuk 'estimated_steps'. Plan ini siap untuk dieksekusi atau diproses lebih lanjut oleh komponen sistem lainnya.\n\nSee Also\n--------\nTaskPlanner.create_plan : Metode utama yang memanggil `_process_plan_data` setelah mendapatkan output dari LLM.\nBaseModel.extract_json : Metode yang digunakan oleh `TaskPlanner` untuk mendapatkan `plan_data` mentah dari LLM.\n\nNotes\n-----\nMetode ini bersifat internal (diawali underscore) dan tidak dimaksudkan untuk dipanggil langsung oleh pengguna eksternal. Fungsinya adalah sebagai bagian dari alur kerja internal `TaskPlanner` untuk memastikan integritas dan konsistensi data plan.\n\nExamples\n--------\n>>> from core.planning.task_planner import TaskPlanner\n>>> from core.models.base import BaseModel\n>>> class MockModel(BaseModel):\n...     def extract_json(self, prompt, schema, system_message):\n...         pass # Not used in this example\n>>> \n>>> planner = TaskPlanner(model=MockModel())\n>>> raw_plan_data = {\n...     \"steps\": [\n...         {\"name\": \"Step 1\", \"description\": \"Deskripsi langkah 1\", \"tool\": \"search_tool\"},\n...         {\"name\": \"Step 2\", \"description\": \"Deskripsi langkah 2\", \"tool\": \"summarize_tool\"}\n...     ],\n...     \"reasoning\": \"Untuk mencapai tujuan, langkah-langkah ini diperlukan.\",\n...     \"estimated_steps\": 2\n... }\n>>> task_description = \"Menulis laporan tentang tren pasar.\"\n>>> structured_plan = planner._process_plan_data(task_description, raw_plan_data)\n>>> assert structured_plan[\"task\"] == task_description\n>>> assert structured_plan[\"status\"] == \"created\"\n>>> assert len(structured_plan[\"steps\"]) == 2\n>>> assert \"id\" in structured_plan[\"steps\"][0]\n>>> assert structured_plan[\"steps\"][0][\"tool_input\"] == {}\n>>> assert structured_plan[\"steps\"][1][\"dependencies\"] == []",
+                    "reader_search_attempts": 0,
+                    "verifier_rejection_count": 0,
+                    "documentation_json": {
+                        "short_summary": "Memproses data plan mentah menjadi struktur plan yang terdefinisi.",
+                        "deprecation_warning": null,
+                        "extended_summary": "Metode ini bertanggung jawab untuk mengubah output mentah yang dihasilkan oleh model bahasa (LLM) menjadi objek plan yang terstruktur dan siap digunakan. Tujuan utamanya adalah untuk memastikan bahwa setiap langkah dalam plan memiliki identifikasi unik dan properti yang diperlukan untuk eksekusi lebih lanjut, seperti `tool_input` dan `dependencies` yang diinisialisasi secara default jika tidak disediakan. Metode ini dipanggil setelah LLM berhasil mengekstrak data plan dari prompt, berfungsi sebagai tahap finalisasi sebelum plan dikembalikan. Dalam alur kerja `TaskPlanner`, ini adalah langkah krusial untuk menstandarisasi format plan, memungkinkan sistem lain untuk mengkonsumsi dan mengeksekusi langkah-langkah tugas dengan konsisten. Pendekatan implementasinya melibatkan iterasi melalui langkah-langkah yang diusulkan oleh LLM, menambahkan ID unik menggunakan UUID, dan memastikan keberadaan kunci-kunci penting, kemudian mengagregasikan semua informasi ke dalam struktur kamus plan yang lengkap dengan metadata tambahan.",
+                        "parameters": [
+                            {
+                                "name": "task",
+                                "type": "str",
+                                "description": "Deskripsi tugas asli yang menjadi dasar pembuatan plan. Parameter ini penting untuk mengaitkan plan yang dihasilkan dengan tujuan awal dan memastikan konsistensi dalam pelacakan tugas.",
+                                "default": null
+                            },
+                            {
+                                "name": "plan_data",
+                                "type": "Dict[str, Any]",
+                                "description": "Data plan mentah yang diterima langsung dari model bahasa. Data ini diharapkan berisi kunci 'steps' (daftar langkah), 'reasoning' (penjelasan plan), dan 'estimated_steps' (perkiraan jumlah langkah). Kelengkapan dan format data ini akan divalidasi dan distrukturkan lebih lanjut oleh metode ini.",
+                                "default": null
+                            }
+                        ],
+                        "attributes": null,
+                        "methods": null,
+                        "returns": [
+                            {
+                                "name": null,
+                                "type": "Dict[str, Any]",
+                                "description": "Kamus yang merepresentasikan plan tugas yang telah distrukturkan dan divalidasi. Plan ini mencakup 'id' unik, 'task' asli, 'status' awal ('created'), 'created_at' timestamp, daftar 'steps' yang telah diperkaya (dengan ID, tool_input, dependencies), 'reasoning' dari LLM, 'current_step_index' (0), 'completed_steps' (kosong), dan 'metadata' termasuk 'estimated_steps'. Plan ini siap untuk dieksekusi atau diproses lebih lanjut oleh komponen sistem lainnya."
+                            }
+                        ],
+                        "yields": null,
+                        "receives": null,
+                        "other_parameters": null,
+                        "raises": null,
+                        "warns": null,
+                        "warnings_section": null,
+                        "see_also": [
+                            {
+                                "name": "TaskPlanner.create_plan",
+                                "description": "Metode utama yang memanggil `_process_plan_data` setelah mendapatkan output dari LLM."
+                            },
+                            {
+                                "name": "BaseModel.extract_json",
+                                "description": "Metode yang digunakan oleh `TaskPlanner` untuk mendapatkan `plan_data` mentah dari LLM."
+                            }
+                        ],
+                        "notes": "Metode ini bersifat internal (diawali underscore) dan tidak dimaksudkan untuk dipanggil langsung oleh pengguna eksternal. Fungsinya adalah sebagai bagian dari alur kerja internal `TaskPlanner` untuk memastikan integritas dan konsistensi data plan.",
+                        "references": null,
+                        "examples": ">>> from core.planning.task_planner import TaskPlanner\n>>> from core.models.base import BaseModel\n>>> class MockModel(BaseModel):\n...     def extract_json(self, prompt, schema, system_message):\n...         pass # Not used in this example\n>>> \n>>> planner = TaskPlanner(model=MockModel())\n>>> raw_plan_data = {\n...     \"steps\": [\n...         {\"name\": \"Step 1\", \"description\": \"Deskripsi langkah 1\", \"tool\": \"search_tool\"},\n...         {\"name\": \"Step 2\", \"description\": \"Deskripsi langkah 2\", \"tool\": \"summarize_tool\"}\n...     ],\n...     \"reasoning\": \"Untuk mencapai tujuan, langkah-langkah ini diperlukan.\",\n...     \"estimated_steps\": 2\n... }\n>>> task_description = \"Menulis laporan tentang tren pasar.\"\n>>> structured_plan = planner._process_plan_data(task_description, raw_plan_data)\n>>> assert structured_plan[\"task\"] == task_description\n>>> assert structured_plan[\"status\"] == \"created\"\n>>> assert len(structured_plan[\"steps\"]) == 2\n>>> assert \"id\" in structured_plan[\"steps\"][0]\n>>> assert structured_plan[\"steps\"][0][\"tool_input\"] == {}\n>>> assert structured_plan[\"steps\"][1][\"dependencies\"] == []",
+                        "keywords": [
+                            "plan",
+                            "strukturisasi",
+                            "pemrosesan",
+                            "LLM",
+                            "data"
+                        ]
+                    }
+                },
+                "usage_stats": {
+                    "components": {
+                        "seq:step:2": {
+                            "call_count": 2,
+                            "input_tokens": 6557,
+                            "output_tokens": 4059,
+                            "total_tokens": 10616
+                        },
+                        "seq:step:3": {
+                            "call_count": 1,
+                            "input_tokens": 4060,
+                            "output_tokens": 1699,
+                            "total_tokens": 5759
+                        }
+                    },
+                    "total": {
+                        "call_count": 3,
+                        "input_tokens": 10617,
+                        "output_tokens": 5758,
+                        "total_tokens": 16375
+                    }
+                }
+            },
+            "component_signature": "def _process_plan_data(self, task: str, plan_data: Dict[str, Any]) -> Dict[str, Any]:",
+            "start_line": 348,
+            "end_line": 387,
+            "has_docstring": true,
+            "dependency_graph_url": "main_main.png",
+            "docstring": "\n        Process raw plan data into a structured plan.\n        \n        Args:\n            task: The task description.\n            plan_data: Raw plan data from the model.\n            \n        Returns:\n            A structured plan dictionary.\n        "
+        }
+    ],
+    "meta_information": {
+        "execution_time": {
+            "seconds": 436.9850695133209,
+            "formatted": "0:07:16"
+        }
+    }
+}
