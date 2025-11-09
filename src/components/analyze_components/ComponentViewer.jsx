@@ -173,21 +173,6 @@ function ComponentViewer({ fileName, components = {}, isComplete = false }) {
                   <p className="text-xs text-base-content/70 mb-1">
                     <span className="font-semibold">Path:</span> {component.relative_path}
                   </p>
-                  <p className="text-xs text-base-content/70 flex items-center">
-                    <span className="font-semibold mr-1">Docstring:</span>
-                    {component.has_docstring ? <MdCheckCircle className="h-4 w-4 text-success" /> : <MdClose className="h-4 w-4 text-error" />}
-                    {component.has_docstring ? (
-                      <span className="ml-1 text-base-content">Yes</span>
-                    ) : (
-                      <span className="ml-1 text-base-content/60">No</span>
-                    )}
-                  </p>
-                  {/* Tampilkan docstring awal jika ada */}
-                  {component.docstring && (
-                    <blockquote className="text-xs text-base-content/80 italic border-l-2 border-primary pl-2 mt-2 max-h-20 overflow-y-auto">
-                      {component.docstring.split('\n')[0]} {/* Hanya baris pertama docstring untuk ringkasan */}
-                    </blockquote>
-                  )}
                 </li>
               ))}
             </ul>

@@ -30,6 +30,7 @@ function AnalyzePage() {
   const [processName, setProcessName] = useState('');
   const [previewContent, setPreviewContent] = useState('');
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+  const [rootFolder, setRootFolder] = useState('');
   // ===========================================
 
   const fetchHistoricFiles = useCallback(async () => {
@@ -120,6 +121,7 @@ function AnalyzePage() {
     setProcessName('');
     setSelectedConfig('');
     setPreviewContent('');
+    setRootFolder('');
   };
 
   // === HANDLER BARU: Saat pilihan konfigurasi di dropdown berubah ===
@@ -163,6 +165,7 @@ function AnalyzePage() {
       const payload = {
         config_filename: selectedConfig,
         process_name: processName.trim(),
+        root_folder: rootFolder.trim()
       };
 
       const response = await apiService.post(`/analyze/${selectedFileId}`, payload);
@@ -182,9 +185,9 @@ function AnalyzePage() {
   };
 
   useEffect(() => {
-    if(latestUpdate?.status == "completed"){
+    if (latestUpdate?.status == "completed") {
       showToast(`Documentation is being generated`, 'success');
-    }else if(latestUpdate?.status == "failed"){
+    } else if (latestUpdate?.status == "failed") {
       showToast(`Documentation generation failed`, 'error');
     }
   }, [latestUpdate])
@@ -238,7 +241,7 @@ function AnalyzePage() {
         </div>
 
         {/* Kolom Kanan: Area Hasil Analisis / Preview */}
-        <div className="lg:col-span-2 bg-base-100 rounded-lg shadow-xl p-6 flex flex-col">
+        <div className="lg:col-span-2 bg-base-100 rounded-lg shadow-xl p-6 flex flex-col max-h-screen overflow-y-auto">
           <h2 className="text-2xl font-bold text-base-content mb-4 text-center">Analysis Results & Preview</h2>
 
           {!analysisResult && !isAnalyzing && (
@@ -325,6 +328,19 @@ function AnalyzePage() {
                 className="input input-bordered w-full"
                 value={processName}
                 onChange={(e) => setProcessName(e.target.value)}
+              />
+            </div>
+            <div className="form-control w-full">
+              <label className="label">
+                <span className="label-text">Source Root Folder (Optional)</span>
+                <span className="label-text-alt">Leave blank to analyze from the root</span>
+              </label>
+              <input
+                type="text"
+                placeholder="e.g., 'src/app' or 'source'"
+                className="input input-bordered w-full"
+                value={rootFolder}
+                onChange={(e) => setRootFolder(e.target.value)}
               />
             </div>
             <div className="form-control w-full">

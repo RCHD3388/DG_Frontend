@@ -109,7 +109,7 @@
                     "start_line": 43,
                     "end_line": 74,
                     "has_docstring": true,
-                    "dependency_graph_url": "main_main.png",
+                    "dependency_graph_url": "",
                     "docstring": "\n        Load a tool by name.\n        \n        Args:\n            tool_name: The name of the tool to load.\n            \n        Returns:\n            True if the tool was successfully loaded, False otherwise.\n        "
                 },
                 {
@@ -193,7 +193,7 @@
                     "start_line": 37,
                     "end_line": 48,
                     "has_docstring": true,
-                    "dependency_graph_url": "main_main.png",
+                    "dependency_graph_url": "",
                     "docstring": "\n        Retrieve an item from memory by its identifier.\n        \n        Args:\n            identifier: The identifier of the item to retrieve.\n            \n        Returns:\n            The retrieved item, or None if not found.\n        "
                 }
             ],
@@ -285,7 +285,7 @@
             "start_line": 266,
             "end_line": 285,
             "has_docstring": true,
-            "dependency_graph_url": "main_main.png",
+            "dependency_graph_url": "",
             "docstring": "\n        Merge two configuration dictionaries.\n        \n        Args:\n            default: Default configuration.\n            override: Override configuration.\n            \n        Returns:\n            The merged configuration.\n        "
         },
         {
@@ -385,7 +385,7 @@
             "start_line": 348,
             "end_line": 387,
             "has_docstring": true,
-            "dependency_graph_url": "main_main.png",
+            "dependency_graph_url": "",
             "docstring": "\n        Process raw plan data into a structured plan.\n        \n        Args:\n            task: The task description.\n            plan_data: Raw plan data from the model.\n            \n        Returns:\n            A structured plan dictionary.\n        "
         }
     ],
