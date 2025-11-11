@@ -26,20 +26,44 @@ const Section = ({ title, children }) => {
   );
 };
 
-const DescriptionTable = ({ items, columns = ['Name', 'Type', 'Description'] }) => {
+const DescriptionTable = ({ items, columns = ['Name', 'Type', 'Description'], format = "default" }) => {
   if (!items || items.length === 0) return null;
+
+  const checkIfWithDefaultValue = () => {
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].default !== undefined && items[i].default !== null) return true;
+    }
+    return false;
+  }
+
   return (
     <div className="overflow-x-auto">
-      <table className="table w-full table-zebra">
+      <table className="table w-full table-auto table-zebra">
         <thead>
-          <tr>{columns.map(col => <th key={col}>{col}</th>)}</tr>
+          <tr>
+            {columns.map(col => <th key={col}>{col}</th>)}
+            {format == "parameter" && checkIfWithDefaultValue() && <th>Default Value</th>}
+          </tr>
         </thead>
         <tbody>
           {items.map((item, index) => (
             <tr key={index}>
-              <td className="font-mono">{item.name || item.error || 'N/A'}</td>
-              {columns.includes('Type') && <td className="font-mono text-info">{item.type}</td>}
+              {format === "parameter" && <>
+                <td className="font-mono">{item.name}</td>
+                <td className="font-mono">{item.type}</td>
+                {/* {checkIfWithDefaultValue() && <td className="font-mono">{item.default || 'N/A'}</td>} */}
+              </>}
+              {format === "default" && <td className="font-mono">{item.type || item.error || item.warning || item.name || 'N/A'}</td>}
               <td>{item.description}</td>
+              {format === "parameter" && <>
+                {checkIfWithDefaultValue() &&
+                  <td className="font-mono">
+                    <pre className="whitespace-pre-wrap break-words">
+                      {JSON.stringify(item.default) || 'N/A'}
+                    </pre>
+                  </td>
+                }
+              </>}
             </tr>
           ))}
         </tbody>
@@ -75,13 +99,19 @@ const ComponentDocumentation = ({ component }) => {
 
       {docJson && (
         <>
-          <p className="lead mt-6">{docJson.short_summary}</p><p>{docJson.extended_summary}</p>
-          <Section title="Parameters"><DescriptionTable items={docJson.parameters} /></Section>
-          <Section title="Returns"><DescriptionTable items={docJson.returns} columns={['Name', 'Type', 'Description']} /></Section>
-          <Section title="Raises"><DescriptionTable items={docJson.raises} columns={['Exception', 'Description']} /></Section>
-          <Section title="See Also"><DescriptionTable items={docJson.see_also} columns={['Reference', 'Description']} /></Section>
-          <Section title="Notes"><p>{docJson.notes}</p></Section>
-          <Section title="Examples"><CodeBlock code={docJson.examples || ''} /></Section>
+          <p className="lead mt-6 mb-4 font-semibold">{docJson.short_summary}</p>
+          <p>{docJson.extended_summary}</p>
+          {docJson.parameters && <Section title="Parameters"><DescriptionTable items={docJson.parameters} columns={['Name', 'Type', 'Description']} format='parameter' /></Section>}
+          {docJson.attributes && <Section title="Attributes"><DescriptionTable items={docJson.attributes} columns={['Name', 'Type', 'Description']} format='parameter' /></Section>}
+          {docJson.returns && <Section title="Returns"><DescriptionTable items={docJson.returns} columns={['Type', 'Description']} /></Section>}
+          {docJson.yields && <Section title="Yields"><DescriptionTable items={docJson.yields} columns={['Type', 'Description']} /></Section>}
+          {docJson.receives && <Section title="Receives"><DescriptionTable items={docJson.receives} columns={['Name', 'Type', 'Description']} format='parameter' /></Section>}
+          {docJson.raises && <Section title="Raises"><DescriptionTable items={docJson.raises} columns={['Exception', 'Description']} /></Section>}
+          {docJson.warns && <Section title="Warns"><DescriptionTable items={docJson.warns} columns={['Warn', 'Description']} /></Section>}
+          {docJson.warnings_section && <Section title="Warnings"><p>{docJson.warnings_section}</p></Section>}
+          {docJson.see_also && <Section title="See Also"><DescriptionTable items={docJson.see_also} columns={['Name', 'Description']} /></Section>}
+          {docJson.notes && <Section title="Notes"><p>{docJson.notes}</p></Section>}
+          {docJson.examples && <Section title="Examples"><CodeBlock code={docJson.examples || ''} /></Section>}
         </>
       )}
     </article>
