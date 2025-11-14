@@ -229,8 +229,20 @@ function AnalyzePage() {
           >
             {(isAnalyzing || (latestUpdate && latestUpdate?.status != "completed" && latestUpdate?.status != "failed")) ? (
               <>
-                <span className="loading loading-spinner loading-md"></span>
-                Analyzing...
+                <div className="flex flex-col items-center w-full">
+                  {/* Pesan status saat ini */}
+                  <span className="text-sm font-semibold text-base-content/70">
+                    {'Processing'} {'('}{latestUpdate?.completed_components_count || 0} of {latestUpdate?.components ? Object.keys(latestUpdate?.components).length : 0} components completed {')'} <span className="loading loading-dots loading-xs"></span>
+                  </span>
+
+                  {/* Progress Bar */}
+                  <progress
+                    className="progress progress-info w-full"
+                    // Hitung persentase progres
+                    value={latestUpdate?.completed_components_count || 0}
+                    max={latestUpdate?.components ? Object.keys(latestUpdate?.components).length : 0}
+                  ></progress>
+                </div>
               </>
             ) : (
               <>
