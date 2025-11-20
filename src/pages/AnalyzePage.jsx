@@ -8,6 +8,8 @@ import ExtractionSummary from '../components/analyze_components/ExtractionSummar
 import ComponentViewer from '../components/analyze_components/ComponentViewer';
 import DocumentationWebPreview from '../components/analyze_components/DocumentationWebPreview';
 import dummydata from '../../componentsdata.json';
+import DocumentationResultTab from '../components/analyze_components/DocumentationResultTab'; // Impor komponen yang akan digunakan kembali
+
 
 function AnalyzePage() {
   const { showToast } = useOutletContext();
@@ -195,7 +197,7 @@ function AnalyzePage() {
   return (
     <div className="flex flex-col items-center justify-start py-8 min-h-[calc(100vh-160px)]">
       <h1 className="text-4xl md:text-5xl font-extrabold text-base-content mb-10 text-center">
-        📊 Analyze Your Code Repository
+        📊 Document Your Code Repository
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full px-4">
@@ -254,7 +256,7 @@ function AnalyzePage() {
 
         {/* Kolom Kanan: Area Hasil Analisis / Preview */}
         <div className="lg:col-span-2 bg-base-100 rounded-lg shadow-xl p-6 flex flex-col max-h-screen overflow-y-auto">
-          <h2 className="text-2xl font-bold text-base-content mb-4 text-center">Analysis Results & Preview</h2>
+          <h2 className="text-2xl font-bold text-base-content mb-4 text-center">Documentation Results & Preview</h2>
 
           {!analysisResult && !isAnalyzing && (
             <div className="flex-grow flex flex-col items-center justify-center text-center text-base-content/80">
@@ -306,10 +308,12 @@ function AnalyzePage() {
                 <div className="tab-content bg-base-100 border-base-300 p-2">
                   {/* AREA PREVIEW DOKUMEN DENGAN DOCXVIEWER */}
                   <div className="flex-grow">
-                    {analysisResult.doc_download_url ? (
-                      // Meneruskan prop height ke DocxViewer
-                      <DocxViewer docxUrl={`${BACKEND_BASE_URL}${analysisResult.doc_download_url}`} height="800px" />
-                      // Tinggi disesuaikan: 100vh - (Navbar + Footer + Margin atas + Judul + Stat + Download Links)
+                    {latestUpdate?.task_id && latestUpdate?.status == "completed" ? (
+                      <DocumentationResultTab
+                        key={latestUpdate.task_id} // Ini akan menjaga state komponen tetap ada
+                        processId={latestUpdate.task_id}
+                        showToast={showToast}
+                      />
                     ) : (
                       <div className="flex-grow w-full bg-base-200 rounded-lg p-4 flex items-center justify-center text-base-content/70 h-96">
                         <p>No document URL provided for preview.</p>
