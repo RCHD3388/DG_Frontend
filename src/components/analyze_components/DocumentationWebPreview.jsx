@@ -78,8 +78,8 @@ const ComponentDocumentation = ({ component }) => {
   return (
     <article className="prose max-w-none p-6 bg-base-100 rounded-box shadow">
       <div className="border-b border-base-300 pb-4">
-        <p className="text-sm text-base-content/60 font-mono">{component.relative_path}</p>
-        <h2 className="mt-0">{component.id}</h2>
+        <p className="text-md text-base-content/60 font-mono">File Location : {component.relative_path}</p>
+        <h2 className="mt-0 mb-2 text-xl">{component.id}</h2>
         <div className="mockup-code text-sm">
           <pre><code>{component.component_signature}</code></pre>
         </div>
@@ -99,8 +99,10 @@ const ComponentDocumentation = ({ component }) => {
 
       {docJson && (
         <>
-          <p className="lead mt-6 mb-4 font-semibold">{docJson.short_summary}</p>
-          <p>{docJson.extended_summary}</p>
+          <Section title="Summary">{docJson.short_summary}</Section>
+          <Section title="Description">{docJson.extended_summary}</Section>
+          {/* <p className="lead mt-6 mb-4 font-semibold">{docJson.short_summary}</p> */}
+          {/* <p>{docJson.extended_summary}</p> */}
           {docJson.parameters && <Section title="Parameters"><DescriptionTable items={docJson.parameters} columns={['Name', 'Type', 'Description']} format='parameter' /></Section>}
           {docJson.attributes && <Section title="Attributes"><DescriptionTable items={docJson.attributes} columns={['Name', 'Type', 'Description']} format='parameter' /></Section>}
           {docJson.returns && <Section title="Returns"><DescriptionTable items={docJson.returns} columns={['Type', 'Description']} /></Section>}

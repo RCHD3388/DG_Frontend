@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { apiService } from '../../services/APIService'; // Sesuaikan path jika perlu
 import DocumentationWebPreview from '../analyze_components/DocumentationWebPreview'; // Impor komponen yang akan digunakan kembali
+import DocumentationResultTab from '../analyze_components/DocumentationResultTab'; // Impor komponen yang akan digunakan kembali
 
 // Komponen ini akan menjadi isi dari dashboard utama di halaman Manager
 function DocumentationManagerContent({ showToast }) {
@@ -103,22 +104,24 @@ function DocumentationManagerContent({ showToast }) {
           <span className="loading loading-spinner"></span>
         </div>
       ) : (
-        <ul className="menu bg-base-200 w-full rounded-box p-2 text-base-content font-semibold">
-          {processes.length > 0 ? (
-            processes.map(process => (
-              <li key={process.id} className='mb-2'>
-                <a
-                  className={selectedProcessId === process.id ? "active bg-success text-success-content" : "bg-base-300 text-base-content"}
-                  onClick={() => handleSelectProcess(process.id)}
-                >
-                  {process.name} ({process.id.slice(0, 5) + "..."})
-                </a>
-              </li>
-            ))
-          ) : (
-            <li className="p-4 text-base-content/60">No processes found.</li>
-          )}
-        </ul>
+        <div className='overflow-y-auto'>
+          <ul className="menu bg-base-200 w-full rounded-box p-2 text-base-content font-semibold">
+            {processes.length > 0 ? (
+              processes.map(process => (
+                <li key={process.id} className='mb-2'>
+                  <a
+                    className={selectedProcessId === process.id ? "active bg-success text-success-content" : "bg-base-300 text-base-content"}
+                    onClick={() => handleSelectProcess(process.id)}
+                  >
+                    {process.name} ({process.id.slice(0, 5) + "..."})
+                  </a>
+                </li>
+              ))
+            ) : (
+              <li className="p-4 text-base-content/60">No processes found.</li>
+            )}
+          </ul>
+        </div>
       )}
 
       {/* Kolom Kanan: Area Konten dengan Tabs */}
@@ -146,7 +149,11 @@ function DocumentationManagerContent({ showToast }) {
 
             <input type="radio" name="my_tabs_3" className="tab" aria-label="Documentation Result" />
             <div className="tab-content bg-base-100 border-base-300 p-6">
-              <p>Content for "Documentation Result" will be here.</p>
+              <DocumentationResultTab
+                key={selectedProcessId} // Ini akan menjaga state komponen tetap ada
+                processId={selectedProcessId}
+                showToast={showToast}
+              />
             </div>
           </div>
 
