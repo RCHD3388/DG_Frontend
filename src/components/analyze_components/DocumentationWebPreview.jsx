@@ -74,6 +74,9 @@ const DescriptionTable = ({ items, columns = ['Name', 'Type', 'Description'], fo
 
 const ComponentDocumentation = ({ component }) => {
   const docJson = component?.docgen_final_state?.final_state?.documentation_json;
+  useEffect(()=> {
+    console.log(docJson);
+  }, [])
   if (!component) return null;
   return (
     <article className="prose max-w-none p-6 bg-base-100 rounded-box shadow">
@@ -103,7 +106,7 @@ const ComponentDocumentation = ({ component }) => {
           <Section title="Description">{docJson.extended_summary}</Section>
           {/* <p className="lead mt-6 mb-4 font-semibold">{docJson.short_summary}</p> */}
           {/* <p>{docJson.extended_summary}</p> */}
-          {docJson.parameters && <Section title="Parameters"><DescriptionTable items={docJson.parameters} columns={['Name', 'Type', 'Description']} format='parameter' /></Section>}
+          {docJson.parameters && docJson.parameters.length > 0 && <Section title="Parameters"><DescriptionTable items={docJson.parameters} columns={['Name', 'Type', 'Description']} format='parameter' /></Section>}
           {docJson.attributes && <Section title="Attributes"><DescriptionTable items={docJson.attributes} columns={['Name', 'Type', 'Description']} format='parameter' /></Section>}
           {docJson.returns && <Section title="Returns"><DescriptionTable items={docJson.returns} columns={['Type', 'Description']} /></Section>}
           {docJson.yields && <Section title="Yields"><DescriptionTable items={docJson.yields} columns={['Type', 'Description']} /></Section>}
