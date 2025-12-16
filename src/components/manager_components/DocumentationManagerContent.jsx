@@ -71,7 +71,7 @@ function DocumentationManagerContent({ showToast }) {
 
 
   return (
-    <div className="grid grid-cols-5 gap-2 h-full">
+    <div className="grid grid-cols-6 gap-2 h-full">
 
       {/* Kolom Kiri: Sidebar Daftar Proses */}
       {/* <aside className="lg:col-span-1 bg-base-200 rounded-box p-2 h-full overflow-y-auto">
@@ -125,7 +125,7 @@ function DocumentationManagerContent({ showToast }) {
       )}
 
       {/* Kolom Kanan: Area Konten dengan Tabs */}
-      <main className="lg:col-span-4 bg-base-100 rounded-box w-full">
+      <main className="lg:col-span-5 bg-base-100 rounded-box w-full">
         {!selectedProcessId ? (
           // Tampilan saat tidak ada proses yang dipilih
           <div className="flex items-center justify-center h-full text-center">

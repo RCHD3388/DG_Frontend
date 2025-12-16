@@ -25,7 +25,7 @@ function ManagerPage() {
   const [confirmationTitle, setConfirmationTitle] = useState('');
 
   // State untuk mengelola bagian aktif di sidebar
-  const [activeManagerSection, setActiveManagerSection] = useState('documentations'); // Default ke Data Management
+  const [activeManagerSection, setActiveManagerSection] = useState('config'); // Default ke Data Management
 
   // --- HANDLER UNTUK LOGIKA PEMBERSIHAN ---
   const executeDeleteAction = useCallback(async (type) => {
@@ -225,20 +225,20 @@ function ManagerPage() {
 
   return (
     <div className="flex flex-col items-center justify-start min-h-[calc(100vh-160px)]">
-      <h1 className="text-4xl md:text-5xl font-extrabold text-base-content mb-10 text-center">
-        ⚙️ Application Manager
+      <h1 className="text-4xl font-extrabold text-base-content mb-3 text-center">
+        Application Manager
       </h1>
 
-      <div className="w-full mx-auto flex flex-col lg:flex-row gap-4 h-full"
+      <div className="w-full mx-auto flex flex-col gap-4 h-full"
         style={{ minHeight: 'calc(100vh - 250px)', maxHeight: 'calc(100vh - 200px)' }}> {/* Container utama sidebar + content */}
         {/* Sidebar Kiri */}
-        <div className="lg:w-1/6 flex-shrink-0 bg-base-100 rounded-lg shadow-xl p-4"> {/* Lebar sidebar */}
+        <div className="bg-base-100 rounded-lg shadow-xl p-2"> {/* Lebar sidebar */}
           <ManagerSidebar activeSection={activeManagerSection} onSectionChange={setActiveManagerSection} />
         </div>
 
         {/* Konten Utama Kanan */}
         <div
-          className="lg:w-3/4 bg-base-100 rounded-lg shadow-xl p-6 flex-grow"
+          className="bg-base-100 rounded-lg shadow-xl p-6 flex-grow"
           style={{ overflowY: 'auto' }}
         >
           {renderContent()}

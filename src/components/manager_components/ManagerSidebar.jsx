@@ -17,7 +17,7 @@ function ManagerSidebar({ activeSection, onSectionChange }) {
   ];
 
   return (
-    <ul className="menu bg-base-200 w-full rounded-box p-2 text-base-content font-semibold">
+    <ul className="menu menu-horizontal bg-base-200 w-full rounded-box p-2 text-base-content font-semibold">
       {sidebarItems.map(item => (
         <li key={item.id}>
           <a

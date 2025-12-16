@@ -326,7 +326,12 @@ function DocumentationWebPreview({ documentationData }) {
 <body>
   <div class="mx-auto">
     <h1 class="text-4xl font-bold mb-6 text-center">Generated Documentation</h1>
-    <div class="main-container">${sidebarHtml}${finalContentHtml}</div>
+    <div class="main-container">
+      ${sidebarHtml}
+        <main class="main-content">
+          ${finalContentHtml}
+        </main>
+    </div>
   </div>${script}
 </body>
 

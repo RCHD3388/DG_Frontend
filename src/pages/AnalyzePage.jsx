@@ -25,7 +25,7 @@ function AnalyzePage() {
   const [latestUpdate, setLatestUpdate] = useState(null);
   const [taskId, setTaskId] = useState(null);
 
-  // === STATE BARU: Untuk Modal Konfigurasi ===
+  // === STATE Konfigurasi: Untuk Modal Konfigurasi ===
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [availableConfigs, setAvailableConfigs] = useState([]);
   const [selectedConfig, setSelectedConfig] = useState('');
@@ -34,6 +34,8 @@ function AnalyzePage() {
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const [rootFolder, setRootFolder] = useState('');
   // ===========================================
+
+  const [detailDocumentation, setDetailDocumentation] = useState(null);
 
   const fetchHistoricFiles = useCallback(async () => {
     setIsLoadingFiles(true);
@@ -186,10 +188,26 @@ function AnalyzePage() {
     }
   };
 
+  // === SETELAH hasil documentation
+
+  const fetchProcessDetails = async () => {
+    setDetailDocumentation(null); // Bersihkan data lama selagi memuat
+    try {
+      // Endpoint ini diasumsikan mengembalikan objek data dokumentasi lengkap
+      const response = await apiService.get(`/documentations/${taskId}`);
+      // Data ini akan diteruskan ke DocumentationWebPreview
+      setDetailDocumentation(response.data);
+    } catch (error) {
+      console.error(`Error fetching details for process ${selectedProcessId}:`, error);
+    }
+  };
+
   useEffect(() => {
     if (latestUpdate?.status == "completed") {
       showToast(`Documentation is being generated`, 'success');
+      fetchProcessDetails();
     } else if (latestUpdate?.status == "failed") {
+      setDetailDocumentation(null);
       showToast(`Documentation generation failed`, 'error');
     }
   }, [latestUpdate])
@@ -221,6 +239,7 @@ function AnalyzePage() {
                 selectedFileId={selectedFileId}
                 onRemoveFile={handleRemoveHistoricFile}
                 withSelection={true} // Aktifkan mode pemilihan
+                withActions={false}
               />
             )}
           </div>
@@ -234,7 +253,7 @@ function AnalyzePage() {
                 <div className="flex flex-col items-center w-full">
                   {/* Pesan status saat ini */}
                   <span className="text-sm font-semibold text-base-content/70">
-                    {'Processing'} {'('}{latestUpdate?.completed_components_count || 0} of {latestUpdate?.components ? Object.keys(latestUpdate?.components).length : 0} components completed {')'} <span className="loading loading-dots loading-xs"></span>
+                    {'Processing'} {latestUpdate?.components ? Object.keys(latestUpdate?.components).length : 0} components <span className="loading loading-dots loading-xs"></span>
                   </span>
 
                   {/* Progress Bar */}
@@ -298,10 +317,15 @@ function AnalyzePage() {
 
                 <input type="radio" name="my_tabs_3" className="tab" aria-label="Web Preview Result" />
                 <div className="tab-content bg-base-100 border-base-300 p-2">
-                  <DocumentationWebPreview
-                    documentationData={dummydata}
-                  />
-
+                  {detailDocumentation ?
+                    (<DocumentationWebPreview
+                      documentationData={detailDocumentation}
+                    />) : (
+                      <div className="flex-grow w-full bg-base-200 rounded-lg p-4 flex items-center justify-center text-base-content/70 h-96">
+                        <p>No document provided for preview.</p>
+                      </div>
+                    )
+                  }
                 </div>
 
                 <input type="radio" name="my_tabs_3" className="tab" aria-label="Documentation Result" />

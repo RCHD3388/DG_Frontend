@@ -8,7 +8,7 @@ import { MdDeleteForever } from 'react-icons/md';
  * @property {number} size - Ukuran file dalam bytes
  */
 
-function UploadedFileList({ files, onRemoveFile, onSelectFile, selectedFileId, withSelection=false, maxHeight='800px' }) { // Tambahkan onSelectFile, selectedFileId
+function UploadedFileList({ files, onRemoveFile, onSelectFile, selectedFileId, withSelection=false, withActions=true, maxHeight='800px' }) { // Tambahkan onSelectFile, selectedFileId
   if (!files || files.length === 0) {
     return (
       <div className="text-center p-4 bg-base-100 rounded-lg shadow-md text-base-content/70 h-full flex flex-col items-center justify-center">
@@ -28,7 +28,7 @@ function UploadedFileList({ files, onRemoveFile, onSelectFile, selectedFileId, w
               <th className="w-6/12">File Name</th> {/* Lebar kolom disesuaikan */}
               <th className="w-2/12">Size</th>
               {withSelection && <th className="w-1/12">Select</th>} {/* Kolom baru untuk pemilihan */}
-              <th className="w-2/12">Actions</th>
+              {withActions && <th className="w-1/12">Actions</th>}
             </tr>
           </thead>
           <tbody>
@@ -46,7 +46,7 @@ function UploadedFileList({ files, onRemoveFile, onSelectFile, selectedFileId, w
                     onChange={() => onSelectFile(file.id)}
                   />
                 </td>}
-                <td>
+                {withActions && <td>
                   {onRemoveFile && ( // Tombol Remove tetap ada, tapi di-handle oleh parent
                     <button
                       className="btn btn-xs btn-error btn-outline tooltip"
@@ -56,7 +56,7 @@ function UploadedFileList({ files, onRemoveFile, onSelectFile, selectedFileId, w
                       <MdDeleteForever className="h-5 w-5" />
                     </button>
                   )}
-                </td>
+                </td>}
               </tr>
             ))}
           </tbody>
