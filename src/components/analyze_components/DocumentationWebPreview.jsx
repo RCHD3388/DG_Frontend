@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import ReactDOMServer from 'react-dom/server';
 import { configService } from '../../services/ConfigService';
+import ProjectOverview from './ProjectOverview';
+import { Activity, CheckCircle2, Code2, Eye, Settings, XCircle } from 'lucide-react';
 
 const VITE_BACKEND_GRAPH_VISUAL_BASE_URL = configService.getValue('VITE_BACKEND_GRAPH_VISUAL_BASE_URL');
 
@@ -72,21 +74,50 @@ const DescriptionTable = ({ items, columns = ['Name', 'Type', 'Description'], fo
   );
 };
 
-const ComponentDocumentation = ({ component }) => {
+const ComponentDocumentation = ({ component, source_code_mode = 'signature'}) => {
   const docJson = component?.docgen_final_state?.final_state?.documentation_json;
-  useEffect(()=> {
-    console.log(docJson);
-  }, [])
+  // useEffect(()=> {
+  //   console.log(docJson);
+  // }, [])
   if (!component) return null;
   return (
     <article className="prose max-w-none p-6 bg-base-100 rounded-box shadow">
       <div className="border-b border-base-300 pb-4">
-        <p className="text-md text-base-content/60 font-mono">File Location : {component.relative_path}</p>
-        <h2 className="mt-0 mb-2 text-xl">{component.id}</h2>
-        <div className="mockup-code text-sm">
-          <pre><code>{component.component_signature}</code></pre>
-        </div>
+        <h2 className="mt-0 mb-2 text-2xl font-bold">COMPONENT ID : {component.id}</h2>
+        <p className="text-md text-base-content/60 font-mono">File Location  : {component.relative_path}</p>
+        <p className="text-md text-base-content/60 font-mono">Component Type : {component.component_type}</p>
+      
+        {(source_code_mode == "signature" || source_code_mode == "both") && <Section title="Code Signature">
+          <div className="bg-[#1e1e1e] p-4 overflow-x-auto custom-scrollbar border-t border-base-content/5">
+            <pre className="text-sm leading-relaxed font-mono text-gray-300 m-0">
+              <code>{component.component_signature}</code>
+            </pre>
+          </div>
+        </Section>}
       </div>
+
+      {/* --- BAGIAN BARU: SOURCE CODE ACCORDION --- */}
+      {component.source_code && (source_code_mode == "full" || source_code_mode == "both") &&(
+        <div className="not-prose mt-4">
+          <div className="collapse collapse-arrow bg-base-200 border border-base-content/10 rounded-l shadow-sm group">
+            <input type="checkbox" className="peer" />
+            <div className="collapse-title flex items-center gap-3 py-4 px-6 group-hover:bg-base-300/50 transition-colors">
+              <Code2 size={20} className="text-primary" />
+              <div className="flex flex-col">
+                <span className="font-extrabold text-sm uppercase">Original Source Code</span>
+                <span className="text-[10px] opacity-50 font-bold italic">Click to expand and view the full implementation</span>
+              </div>
+            </div>
+            <div className="collapse-content px-0">
+              <div className="bg-[#1e1e1e] p-6 overflow-x-auto custom-scrollbar border-t border-base-content/5">
+                <pre className="text-sm leading-relaxed font-mono text-gray-300 m-0">
+                  <code>{component.source_code}</code>
+                </pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {component.dependency_graph_url && component.dependency_graph_url !== '' ? (
         <Section title="Dependency Graph">
@@ -173,7 +204,22 @@ function DocumentationWebPreview({ documentationData }) {
   const [selectedComponentId, setSelectedComponentId] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
 
+  const [activeView, setActiveView] = useState('component'); // 'overview' or 'component'
+
+  const [config, setConfig] = useState({
+    includeOverview: true,
+    sourceCodeMode: 'signature', // 'signature', 'full', 'both', 'none'
+    includeStyleOverview: false
+  });
+  const updateConfig = (key, value) => {
+    setConfig(prev => ({ ...prev, [key]: value }));
+  };
+
   const components = documentationData?.components || [];
+
+  useEffect(() => {
+    console.log(documentationData)
+  }, [documentationData])
 
   useEffect(() => {
     if (components.length > 0) {
@@ -198,24 +244,58 @@ function DocumentationWebPreview({ documentationData }) {
 
   const selectedComponent = findComponentById(selectedComponentId, components);
 
+  // GANTI KESELURUHAN FUNGSI handleExportToHTML DENGAN INI
+
   const handleExportToHTML = async () => {
-    if (components.length === 0) {
+    if (!documentationData?.components || documentationData.components.length === 0) {
       showToast('No content available to export.', 'error');
       return;
     }
     setIsExporting(true);
 
     try {
-      // (Fungsi helper rekursif untuk menu dan flatten tetap sama)
+      // === BAGIAN BARU: Fungsi helper rekursif untuk nama komponen ===
+      const getComponentNameForExport = (component) => {
+        if (component.component_type === 'class' || component.component_type === 'function') {
+          return component.id.split('.').pop();
+        }
+        return component.id.split('.').pop();
+      };
+
       const generateRecursiveMenuHtml = (componentList) => {
         if (!componentList || componentList.length === 0) return '';
         let html = '<ul>';
         for (const comp of componentList) {
-          html += `<li><a href="#${comp.id}" data-target-id="${comp.id}">${comp.id.split('.').pop()}</a>${generateRecursiveMenuHtml(comp.method_components)}</li>`;
+          html += `
+            <li>
+              <a href="#${comp.id}" data-target-id="${comp.id}">
+                ${getComponentNameForExport(comp)}
+              </a>
+              ${generateRecursiveMenuHtml(comp.method_components)}
+            </li>
+          `;
         }
         html += '</ul>';
         return html;
       };
+
+      // === PERBAIKAN: Tambahkan item "Project Overview" ke sidebar HTML ===
+      const sidebarHtml = `
+        <aside class="sidebar">
+          <div class="menu bg-base-200 rounded-box w-full sidebar-menu">
+            <ul class="menu bg-base-200 rounded-box w-full flex-shrink-0">
+                <li class="mb-1">
+                    <a href="#__overview__" data-target-id="__overview__" class="bg-base-300 text-base-content">
+                        Project Overview
+                    </a>
+                </li>
+            </ul>
+            <div class="divider my-1"></div>
+            <h3 class="text-lg font-bold p-4">Code Components</h3>
+            ${generateRecursiveMenuHtml(components)}
+          </div>
+        </aside>
+      `;
 
       const flattenComponents = (componentList) => {
         let allComponents = [];
@@ -228,31 +308,37 @@ function DocumentationWebPreview({ documentationData }) {
         return allComponents;
       };
 
-      // 1. Render semua konten ke dalam string HTML terlebih dahulu
       const allComponentsFlat = flattenComponents(components);
-      let contentHtml = allComponentsFlat.map(comp => `
+
+      // === PERBAIKAN: Render ProjectOverview dan semua ComponentDocumentation ===
+      const overviewHtml = `
+        <div class="doc-content" data-component-id="__overview__" style="display: none;">
+            ${ReactDOMServer.renderToStaticMarkup(<ProjectOverview documentationData={documentationData} />)}
+        </div>
+      `;
+
+      let componentsHtml = allComponentsFlat.map(comp => `
         <div class="doc-content" data-component-id="${comp.id}" style="display: none;">
-          ${ReactDOMServer.renderToStaticMarkup(<ComponentDocumentation component={comp} />)}
+          ${ReactDOMServer.renderToStaticMarkup(<ComponentDocumentation component={comp} source_code_mode={config.sourceCodeMode} />)}
         </div>
       `).join('');
 
-      // 2. Buat elemen DOM sementara di memori untuk memanipulasi gambar
+      const finalContentHtml = overviewHtml + componentsHtml;
+
       const tempContainer = document.createElement('div');
-      tempContainer.innerHTML = contentHtml;
+      tempContainer.innerHTML = finalContentHtml;
 
       const images = tempContainer.querySelectorAll('img');
       if (images.length > 0) {
         showToast(`Embedding ${images.length} images... This may take a moment.`, 'info');
       }
 
-      // 3. Buat array promise untuk mengambil dan mengonversi setiap gambar
       const imagePromises = Array.from(images).map(async (img) => {
         const src = img.src;
-        if (!src || src.startsWith('data:')) return; // Lewati jika sudah base64 atau kosong
-
+        if (!src || src.startsWith('data:')) return;
         try {
           const response = await fetch(src);
-          if (!response.ok) throw new Error(`Failed to fetch image: ${response.statusText}`);
+          if (!response.ok) throw new Error(`Fetch failed: ${response.statusText}`);
           const blob = await response.blob();
           const dataUrl = await new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -260,33 +346,32 @@ function DocumentationWebPreview({ documentationData }) {
             reader.onerror = reject;
             reader.readAsDataURL(blob);
           });
-          img.src = dataUrl; // Ganti src dengan data Base64
+          img.src = dataUrl;
         } catch (error) {
           console.error(`Could not embed image ${src}:`, error);
-          img.alt += " (Failed to load)"; // Tandai gambar yang gagal dimuat
+          img.alt += " (Failed to load)";
         }
       });
 
-      // 4. Tunggu semua proses konversi gambar selesai
       await Promise.all(imagePromises);
 
-      // 5. Ambil HTML final dari kontainer yang telah dimodifikasi
-      const finalContentHtml = tempContainer.innerHTML;
-      const sidebarHtml = `<aside class="sidebar overflow-y-auto max-h-screen"><h3 class="text-lg font-bold p-4">Components</h3><div class="menu bg-base-200 rounded-box w-full sidebar-menu">${generateRecursiveMenuHtml(components)}</div></aside>`;
+      const finalEmbeddedContentHtml = tempContainer.innerHTML;
 
+      // === PERBAIKAN: Perbarui script untuk menangani ID "__overview__" ===
       const script = `<script>
         document.addEventListener('DOMContentLoaded', function() {
           const links = document.querySelectorAll('.sidebar-menu a');
           const contents = document.querySelectorAll('.doc-content');
-          const menuLists = document.querySelectorAll('.sidebar-menu ul');
-          menuLists.forEach(ul => { if (ul.innerHTML.trim() === '') { ul.remove(); } });
           function showContent(id) {
             contents.forEach(c => { c.style.display = 'none'; });
-            links.forEach(l => { l.classList.remove('active'); });
+            links.forEach(l => { l.classList.remove('active', 'font-bold'); l.classList.add('bg-base-300', 'text-base-content'); });
             const contentToShow = document.querySelector(\`.doc-content[data-component-id="\${id}"]\`);
             if (contentToShow) contentToShow.style.display = 'block';
             const activeLink = document.querySelector(\`.sidebar-menu a[data-target-id="\${id}"]\`);
-            if (activeLink) activeLink.classList.add('active');
+            if (activeLink) {
+              activeLink.classList.remove('bg-base-300', 'text-base-content');
+              activeLink.classList.add('active', 'font-bold');
+            }
           }
           links.forEach(link => {
             link.addEventListener('click', function(e) {
@@ -296,48 +381,14 @@ function DocumentationWebPreview({ documentationData }) {
               history.pushState(null, null, '#' + targetId);
             });
           });
-          const initialHash = window.location.hash.substring(1);
-          const initialLink = document.querySelector(\`.sidebar-menu a[data-target-id="\${initialHash}"]\`);
-          if (initialLink) { showContent(initialHash); }
-          else if (links.length > 0) { showContent(links[0].getAttribute('data-target-id')); }
+          const initialId = window.location.hash.substring(1) || '__overview__';
+          showContent(initialId);
         });
       </script>`;
 
-      const fullHtml = `</html>
-<!DOCTYPE html>
-<html lang="en" data-theme="light">
+      // (Template HTML lainnya tetap sama)
+      const fullHtml = `<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Documentation Export</title><link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.2/dist/full.min.css" rel="stylesheet" type="text/css" /><script src="https://cdn.tailwindcss.com"></script><style>body { padding: 1.5rem; background-color: hsl(var(--b2)); } .main-container {display: flex;gap: 1.5rem;margin: auto; max-width: 1600px;} .sidebar {flex-shrink: 0;width: 25%;height: 100vh; position: sticky; top: 1.5rem; overflow-y: auto;} .main-content {flex-grow: 1;min-width: 0;} .sidebar-menu ul {padding-left: 1rem;} .sidebar-menu a { white-space: normal; line-height: 1.4; } .sidebar-menu a.active {background-color: hsl(var(--p));color: hsl(var(--pc));}</style></head><body><div class="mx-auto"><h1 class="text-4xl font-bold mb-6 text-center">Generated Documentation</h1><div class="main-container">${sidebarHtml}<main class="main-content">${finalEmbeddedContentHtml}</main></div></div>${script}</body></html>`;
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Documentation Export</title>
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.2/dist/full.min.css" rel="stylesheet" type="text/css" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body { padding: 1.5rem; background-color: hsl(var(--b2));}
-    .main-container {display: flex;gap: 1.5rem;margin: auto;}
-    .sidebar {flex-shrink: 0;width: 25%;height: fit-content;position: sticky;top: 1.5rem;}
-    .main-content {flex-grow: 1;min-width: 0;}
-    .sidebar-menu ul {padding-left: 1rem;}
-    .sidebar-menu a.active {background-color: hsl(var(--p));color: hsl(var(--pc));}
-  </style>
-</head>
-
-<body>
-  <div class="mx-auto">
-    <h1 class="text-4xl font-bold mb-6 text-center">Generated Documentation</h1>
-    <div class="main-container">
-      ${sidebarHtml}
-        <main class="main-content">
-          ${finalContentHtml}
-        </main>
-    </div>
-  </div>${script}
-</body>
-
-</html>`;
-
-      // 6. Buat Blob dari HTML final dan picu download
       const blob = new Blob([fullHtml], { type: 'text/html' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -365,13 +416,29 @@ function DocumentationWebPreview({ documentationData }) {
     );
   }
 
+  const countComponents = () => {
+    let count = components.length;
+    count += components.reduce((acc, curr) => {
+      return acc + (curr.method_components?.length || 0);
+    }, 0);
+    return count > 999 ? "999+" : count;
+  }
+
   return (
     // 1. Kontainer utama diubah menjadi flex-col dengan tinggi penuh
     <div className="w-full h-full flex flex-col">
       <div className="flex justify-end mb-4 flex-shrink-0">
-        <button className="btn btn-primary" onClick={handleExportToHTML} disabled={isExporting}>
+        <button className="btn btn-primary mr-2" onClick={handleExportToHTML} disabled={isExporting}>
           {isExporting && <span className="loading loading-spinner"></span>}
           Export to HTML
+        </button>
+        <button
+          className="btn btn-warning font-bold text-warning-content rounded-sm shadow-lg shadow-warning/20 hover:scale-105 transition-transform"
+          onClick={() => document.getElementById('config_modal').showModal()}
+          disabled={isExporting}
+        >
+          <Settings size={18} />
+          Configuration
         </button>
       </div>
 
@@ -380,7 +447,34 @@ function DocumentationWebPreview({ documentationData }) {
 
         {/* 3. Sidebar diubah menjadi flex-col */}
         <aside className="lg:w-1/4 bg-base-200 rounded-box p-2 h-full flex flex-col">
-          <h3 className="text-lg font-bold p-4 flex-shrink-0">Code Components</h3>
+          {/* Item Menu Baru untuk Overview */}
+          <ul className="menu bg-base-100 border border-base-content/5 rounded-box w-full p-2 shadow-sm">
+            <li>
+              <a
+                onClick={() => setActiveView('overview')}
+                className={`
+        /* Transisi halus saat perpindahan state */
+        transition-all duration-200 
+        
+        /* State Default (Tidak Active): Background solid, teks jelas, tidak transparan */
+        bg-base-200 text-base-content hover:bg-base-300
+        
+        /* State Active: Menggunakan warna primary (atau warna pilihan Anda) */
+        ${activeView === 'overview'
+                    ? 'active !bg-primary !text-primary-content font-bold shadow-md'
+                    : ''
+                  }
+      `}
+              >
+                <Activity size={18} />
+                Project Overview
+              </a>
+            </li>
+          </ul>
+
+          <div className="divider my-1"></div>
+
+          <div className="text-lg font-bold px-4 flex-shrink-0">Code Components</div>
 
           {/* 4. Wrapper baru untuk membuat HANYA daftar menu yang bisa di-scroll */}
           <div className="overflow-y-auto flex-grow max-h-screen">
@@ -390,7 +484,10 @@ function DocumentationWebPreview({ documentationData }) {
                   key={comp.id}
                   component={comp}
                   selectedComponentId={selectedComponentId}
-                  onSelect={setSelectedComponentId}
+                  onSelect={(id) => {
+                    setSelectedComponentId(id);
+                    setActiveView('component');
+                  }}
                 />
               ))}
             </ul>
@@ -398,14 +495,128 @@ function DocumentationWebPreview({ documentationData }) {
         </aside>
 
         {/* 5. Konten utama sekarang memiliki overflow-y-auto sendiri */}
-        <main className="lg:w-3/4 overflow-y-auto h-full pr-2 max-h-screen">
-          {selectedComponent ? <ComponentDocumentation component={selectedComponent} /> :
+        <main className="lg:w-3/4 pr-2 ">
+          {activeView === 'overview' && (
+            <ProjectOverview documentationData={documentationData} />
+          )}
+
+          {activeView === 'component' && (selectedComponent ? <ComponentDocumentation component={selectedComponent} source_code_mode={config.sourceCodeMode} /> :
             <div className="flex items-center justify-center h-full bg-base-200 rounded-lg p-8">
               <p>Select a component to view its documentation.</p>
             </div>
-          }
+          )}
         </main>
       </div>
+
+      {/* --- MODAL CONFIGURATION FINAL REVISION --- */}
+      <dialog id="config_modal" className="modal modal-middle backdrop-blur-md transition-all">
+        {/* Lebar menggunakan w-11/12 untuk keamanan margin layar, max-w-5xl untuk kelegaan konten */}
+        <div className="modal-box w-11/12 max-w-5xl bg-base-100 border border-base-content/10 shadow-2xl p-0 overflow-hidden flex flex-col">
+
+          {/* Header Section */}
+          <div className="p-6 sm:p-8 border-b border-base-content/5 bg-base-200/30 flex-shrink-0">
+            <div className="flex items-center gap-5">
+              <div className="p-4 bg-warning text-warning-content rounded-2xl shadow-xl animate-pulse-slow">
+                <Settings size={32} />
+              </div>
+              <div>
+                <h3 className="font-black text-2xl sm:text-3xl tracking-tight">Documentation Settings</h3>
+                <p className="text-sm opacity-60 font-semibold italic">Customizing your documentation output.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Body Section dengan Smart Wrapping */}
+          <div className="flex flex-wrap md:flex-nowrap w-full overflow-y-auto max-h-[70vh]">
+
+            {/* Sisi Kiri: Configuration Controls (Lebih mendominasi) */}
+            <div className="w-full md:w-3/5 p-6 sm:p-10 space-y-4 border-b md:border-b-0 md:border-r border-base-content/10">
+              <div>
+                <label className="text-sm font-black uppercase tracking-[0.25em] text-primary mb-2 block opacity-70">
+                  Arsitektur Utama
+                </label>
+                <div className="grid grid-cols-1 gap-4">
+                  {/* Toggle Overview */}
+                  <div className="form-control">
+                    <label className="label cursor-pointer flex items-center justify-between bg-base-200/40 hover:bg-base-200 p-5 rounded-1xl transition-all border border-base-content/5 group shadow-sm">
+                      <div className="flex flex-col gap-1">
+                        <span className="label-text font-extrabold text-base group-hover:text-primary transition-colors">Project Overview</span>
+                        <span className="text-[10px] opacity-40 uppercase font-bold tracking-wider">Include summary and metrics</span>
+                      </div>
+                      <input
+                        type="checkbox"
+                        className="toggle toggle-primary toggle-lg"
+                        checked={config.includeOverview}
+                        onChange={(e) => updateConfig('includeOverview', e.target.checked)}
+                      />
+                    </label>
+                  </div>
+
+                </div>
+              </div>
+
+              {/* Source Code Mode */}
+              <div className="space-y-2">
+                <label className="text-sm font-black uppercase tracking-[0.25em] text-primary block opacity-70">Visualisasi Source Code</label>
+                <div className="relative group">
+                  <select
+                    className="select select-bordered w-full bg-base-100 focus:outline-none focus:ring-4 focus:ring-primary/10 border-base-content/20 rounded-1xl font-bold h-16 text-lg transition-all"
+                    value={config.sourceCodeMode}
+                    onChange={(e) => updateConfig('sourceCodeMode', e.target.value)}
+                  >
+                    <option value="signature">Code Signature Only</option>
+                    <option value="full">Complete Source Code</option>
+                    <option value="both">Complete Code & Signature</option>
+                  </select>
+                </div>
+                <p className="text-xs opacity-50 px-3 italic font-medium">Metode ini menentukan bagaimana blok kode dirender pada setiap detail komponen.</p>
+              </div>
+            </div>
+
+            {/* Sisi Kanan: Live Status (Tidak akan terpotong karena MD:W-2/5) */}
+            <div className="w-full md:w-2/5 p-6 sm:p-10 bg-base-200/40 flex flex-col">
+              <label className="text-sm font-black uppercase tracking-[0.25em] opacity-40 mb-2 block">Live Preview State</label>
+
+              <div className="flex-grow space-y-2">
+                <div className="bg-base-100 px-6 py-4 rounded-[0.5rem] border border-base-content/5 shadow-xl space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold opacity-50 uppercase tracking-widest">Overview:</span>
+                    <span className={`badge badge-md font-black px-4 py-3 ${config.includeOverview ? "badge-success text-success-content" : "badge-error text-error-content"}`}>
+                      {config.includeOverview ? "ACTIVE" : "INACTIVE"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold opacity-50 uppercase tracking-widest">Visibility:</span>
+                    <span className="badge badge-primary badge-outline font-mono font-black border-2">{config.sourceCodeMode}</span>
+                  </div>
+                </div>
+
+                {/* Stats Card yang Solid */}
+                <div className="p-8 bg-gradient-to-br from-primary to-indigo-700 text-primary-content rounded-[0.5rem] shadow-2xl relative overflow-hidden group">
+                  <Activity size={120} className="absolute -right-8 -bottom-8 opacity-20 group-hover:scale-125 transition-transform duration-700" />
+                  <div className="relative z-10">
+                    <p className="text-[10px] uppercase font-black tracking-[0.2em] opacity-70 mb-3">Total Component Terdeteksi</p>
+                    <div className="flex items-end gap-3">
+                      <span className="text-5xl font-black leading-none tracking-tighter">{countComponents()}</span>
+                      <span className="text-sm font-bold opacity-80 mb-1 uppercase tracking-widest italic">Components</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer Action - Terkunci di Bawah */}
+          <div className="p-6 bg-base-100 border-t border-base-content/10 flex-shrink-0">
+            <form method="dialog" className="flex flex-col sm:flex-row justify-end gap-4">
+              <button className="btn btn-warning rounded-1xl px-8 font-bold order-2 sm:order-1">Batalkan</button>
+              <button className="btn btn-primary rounded-1xl px-14 shadow-2xl shadow-primary/40 font-black uppercase tracking-widest hover:scale-105 transition-all order-1 sm:order-2">
+                Apply & Reload Documentation
+              </button>
+            </form>
+          </div>
+        </div>
+      </dialog>
     </div>
   );
 }
